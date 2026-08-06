@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Specula — The Independent Hotel Certification</title>
+<meta name="description" content="Specula sends anonymous auditors into hotels for real, unannounced stays and reports exactly what they find. No sponsorship. No negotiation." />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+<script>
+  // One-time cleanup: speculaone.com briefly pointed at the audit PWA before
+  // DNS/domain routing was corrected. Any browser that visited during that
+  // window has a stray service worker stuck on this origin, serving stale
+  // content. This removes it silently on every load — harmless once clean.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+  }
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+</script>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav-mark">SPECULA</div>
+    <nav class="nav-links">
+      <a href="#process">The Process</a>
+      <a href="#packages">Packages</a>
+      <a href="#why">Why Specula</a>
+      <a href="#seal">The Seal</a>
+      <a href="#owners" class="nav-cta">For Hotels</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">An Independent Hotel Certification</p>
+        <h1>Every guest<br>could be us.</h1>
+        <p class="hero-sub">Specula sends anonymous auditors into hotels for real, unannounced stays — booked, paid for, and lived exactly like any other guest's. What we find is what we report. No sponsorship. No negotiation. No exceptions.</p>
+        <p class="hero-bridge">Built for travelers who want proof before they book — run as a service hotels choose because it's worth earning.</p>
+        <div class="hero-actions">
+          <a href="#owners" class="btn btn-gold">Apply for certification</a>
+          <a href="#process" class="btn btn-ghost">See how it works</a>
+        </div>
+      </div>
+
+      <div class="report-card" id="report-card">
+        <div class="report-head">
+          <span>FIELD REPORT</span>
+          <span class="report-ref">SPC-2026-0417</span>
+        </div>
+        <div class="report-line"><span class="report-label">Arrival</span><span class="report-redacted">████████████</span></div>
+        <div class="report-line"><span class="report-label">Room</span><span class="report-redacted">██████████████████</span></div>
+        <div class="report-line"><span class="report-label">Service</span><span class="report-redacted">████████████████████████</span></div>
+        <div class="report-line"><span class="report-label">Pool</span><span class="report-redacted">██████████</span></div>
+        <div class="report-line"><span class="report-label">Departure</span><span class="report-redacted">██████████████</span></div>
+        <div class="seal" aria-hidden="true">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="47" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path id="sealTextPath" d="M 60,60 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
+            <text font-size="9.2" letter-spacing="2.5" fill="currentColor">
+              <textPath href="#sealTextPath" startOffset="0">SPECULA · CERTIFIED PROPERTY · SPECULA ·</textPath>
+            </text>
+            <text x="60" y="66" text-anchor="middle" font-size="15" fill="currentColor" font-family="Fraunces, serif">S</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section class="process" id="process">
+      <p class="section-eyebrow">The Process</p>
+      <h2>One stay. No warning. Full report.</h2>
+
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h3>Booking</h3>
+          <p>Our auditor books through the same channels your guests use. No advance contact with the property. No disclosed dates.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h3>Stay</h3>
+          <p>A full, paid stay — arrival to departure, every touchpoint a guest would encounter, quietly logged in real time.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h3>Report</h3>
+          <p>A shift-by-shift account is compiled: what was met, what was missed, and exactly when. Nothing softened for the file.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">04</span>
+          <h3>Seal</h3>
+          <p>Properties that meet the standard carry the Specula mark. Properties that don't, don't — and are told exactly why.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PACKAGES ============ -->
+    <section class="packages" id="packages">
+      <p class="section-eyebrow">Packages</p>
+      <h2>Three depths of scrutiny. Only two can earn a seal.</h2>
+
+      <div class="pkg-grid">
+        <div class="pkg-card">
+          <p class="pkg-name">Desk Review</p>
+          <p class="pkg-scope">No stay. We review your public presence — site, policies, published guest feedback — for consistency and red flags.</p>
+          <div class="pkg-deliver">
+            <span class="pkg-deliver-label">Delivers</span>
+            <span>A private report to your team. No public seal, no public listing.</span>
+          </div>
+          <a href="#owners" class="btn btn-ghost pkg-cta">Request this package</a>
+        </div>
+
+        <div class="pkg-card">
+          <p class="pkg-name">Spot Audit</p>
+          <p class="pkg-scope">One unannounced stay, one shift. A focused pass on the touchpoints guests notice first.</p>
+          <div class="pkg-deliver">
+            <span class="pkg-deliver-label">Delivers</span>
+            <span class="pkg-seal-silver">The silver seal — "Reviewed by Specula" — if the standard is met.</span>
+          </div>
+          <a href="#owners" class="btn btn-ghost pkg-cta">Request this package</a>
+        </div>
+
+        <div class="pkg-card pkg-card-featured">
+          <p class="pkg-name">Full Audit</p>
+          <p class="pkg-scope">Multiple stays, every shift, the complete checklist — arrival to departure, nothing skipped.</p>
+          <div class="pkg-deliver">
+            <span class="pkg-deliver-label">Delivers</span>
+            <span class="pkg-seal-gold">The gold seal — "Certified by Specula" — if the standard is met. Full public report.</span>
+          </div>
+          <a href="#owners" class="btn btn-gold pkg-cta">Request this package</a>
+        </div>
+      </div>
+
+      <p class="pkg-footnote">Every package can end without a seal — that's what makes the ones that carry one mean something. No stay is refunded for a bad result, and no report is softened for one either. Certification is reassessed every 12 months, not renewed automatically.</p>
+    </section>
+
+    <!-- ============ WHY ============ -->
+    <section class="why" id="why">
+      <p class="section-eyebrow">Why Specula</p>
+      <h2>A star rating tells you what a hotel submitted.<br>Specula tells you what happened.</h2>
+
+      <div class="compare">
+        <div class="compare-col">
+          <h4>Conventional ratings</h4>
+          <ul>
+            <li>Self-reported amenities</li>
+            <li>Scheduled inspection visits</li>
+            <li>Paid placement and packages</li>
+            <li>Guest reviews, unverifiable and gameable</li>
+          </ul>
+        </div>
+        <div class="compare-col compare-col-specula">
+          <h4>Specula</h4>
+          <ul>
+            <li>Lived, not submitted</li>
+            <li>Unannounced, every time</li>
+            <li>No fee changes the outcome</li>
+            <li>One trained auditor, one accountable report</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SEAL ============ -->
+    <section class="seal-section" id="seal">
+      <div class="seal-big" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" stroke-width="1"/>
+          <path id="sealTextPathBig" d="M 100,100 m -62,0 a 62,62 0 1,1 124,0 a 62,62 0 1,1 -124,0" fill="none"/>
+          <text font-size="11.5" letter-spacing="4" fill="currentColor">
+            <textPath href="#sealTextPathBig" startOffset="0">SPECULA · CERTIFIED PROPERTY · EST 2026 ·</textPath>
+          </text>
+          <text x="100" y="112" text-anchor="middle" font-size="30" fill="currentColor" font-family="Fraunces, serif">S</text>
+        </svg>
+      </div>
+      <div class="seal-copy">
+        <p class="section-eyebrow">The Mark</p>
+        <h2>A seal a guest can trust, because it was earned in the dark.</h2>
+        <p>The Specula mark is never sold and never guaranteed by application. It's issued after the stay, based on the report — and it expires after 12 months. Certification is re-earned, not renewed.</p>
+      </div>
+    </section>
+
+    <!-- ============ OWNERS CTA ============ -->
+    <section class="owners" id="owners">
+      <p class="section-eyebrow">For Hotel Owners &amp; Operators</p>
+      <h2>Find out what your guests already know.</h2>
+      <p class="owners-sub">Request an audit, or ask your operations team to nominate the property. Either way, the stay is unannounced, the report is unfiltered, and the standard doesn't move.</p>
+      <form class="owners-form" id="ownersForm">
+        <input type="text" placeholder="Property name" required />
+        <input type="email" placeholder="Work email" required />
+        <button type="submit" class="btn btn-gold">Request an audit</button>
+      </form>
+      <p class="owners-note" id="ownersNote"></p>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-mark">SPECULA</div>
+    <p>© 2026 Specula. Independent hotel certification.</p>
+  </footer>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
