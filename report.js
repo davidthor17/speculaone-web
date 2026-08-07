@@ -165,6 +165,11 @@ function renderReport(audit, items) {
       <div class="report-sections">${sectionRows}</div>
     </div>
   `;
+
+  const pdfBtn = document.getElementById('downloadPdfBtn');
+  if (pdfBtn) pdfBtn.addEventListener('click', () => window.print());
+}
+  `;
 }
 
 async function load() {
