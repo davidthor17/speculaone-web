@@ -132,10 +132,11 @@ function renderReport(audit, items) {
     : `<p class="report-empty-sub">No critical failures recorded during this audit.</p>`;
 
   root.innerHTML = `
-    <div class="report-head-block">
+   <div class="report-head-block">
       <p class="section-eyebrow">Audit Report · ${audit.ref}</p>
       <h1>${prop.name}</h1>
       <p class="report-sub">${[prop.city, prop.country].filter(Boolean).join(', ')} · ${prop.category || ''} · Audited ${new Date(audit.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <button id="downloadPdfBtn" class="btn btn-ghost report-pdf-btn">Download PDF</button>
     </div>
 
     ${scorePct !== null ? `
