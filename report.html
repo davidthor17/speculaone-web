@@ -11,6 +11,13 @@
 <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="report.css" />
+<style>
+  @media print {
+    .nav, .footer, .report-pdf-btn { display: none !important; }
+    body, .report-main { background: #fff !important; }
+    .report-main * { color: #111 !important; }
+  }
+</style>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
