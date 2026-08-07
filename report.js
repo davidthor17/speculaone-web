@@ -169,8 +169,6 @@ function renderReport(audit, items) {
   const pdfBtn = document.getElementById('downloadPdfBtn');
   if (pdfBtn) pdfBtn.addEventListener('click', () => window.print());
 }
-  `;
-}
 
 async function load() {
   const params = new URLSearchParams(window.location.search);
