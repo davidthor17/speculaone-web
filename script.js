@@ -42,13 +42,14 @@ if (ownersForm) {
   ownersForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const [propertyInput, emailInput] = ownersForm.querySelectorAll('input');
+    const focusAreaSelect = ownersForm.querySelector('#focusArea');
     const submitBtn = ownersForm.querySelector('button');
     submitBtn.disabled = true;
     ownersNote.textContent = 'Sending…';
-
     const { error } = await supabase.from('leads').insert({
       property_name: propertyInput.value,
       email: emailInput.value,
+      focus_area: focusAreaSelect ? focusAreaSelect.value || null : null,
     });
 
     submitBtn.disabled = false;
