@@ -43,6 +43,7 @@ if (ownersForm) {
     e.preventDefault();
     const [propertyInput, emailInput] = ownersForm.querySelectorAll('input');
     const focusAreaSelect = ownersForm.querySelector('#focusArea');
+    const packageSelect = ownersForm.querySelector('#packageSelect');
     const submitBtn = ownersForm.querySelector('button');
     submitBtn.disabled = true;
     ownersNote.textContent = 'Sending…';
@@ -50,6 +51,7 @@ if (ownersForm) {
       property_name: propertyInput.value,
       email: emailInput.value,
       focus_area: focusAreaSelect ? focusAreaSelect.value || null : null,
+      package: packageSelect ? packageSelect.value || null : null,
     });
 
     submitBtn.disabled = false;
