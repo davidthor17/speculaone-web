@@ -1,0 +1,209 @@
+/* ==========================================================================
+   Specula One — About
+   Editorial founder story on the current ivory system. Same Specula,
+   different page: one narrow reading column, one dark passage for the
+   career arc, no imagery. Depends on tokens.css, hero-prototype.css
+   (base, nav, mobile menu, buttons, focus) and phase3.css (footer).
+   ========================================================================== */
+
+/* Bronze deep enough to clear WCAG AA on ivory. The shared --bronze
+   measures 2.73:1 on --ivory, so small bronze text needs a darker step.
+   Defined here rather than in tokens.css so the homepage is unaffected. */
+:root { --bronze-deep: #82673F; }
+
+/* ---------- reading column ---------- */
+
+/* Gutters sit outside the measure so the text column stays a true 62ch
+   rather than 62ch minus two 8vw gutters. */
+.about-col {
+  max-width: calc(62ch + 2 * var(--space-gutter));
+  margin: 0 auto;
+  padding: 0 var(--space-gutter);
+}
+
+.about-intro,
+.about-method,
+.about-close {
+  background: var(--ivory);
+  color: var(--ink);
+}
+
+.about-intro { padding: var(--space-section) 0 0; }
+.about-method { padding: calc(var(--space-section) * 0.9) 0; }
+
+/* The masthead and the opening narrative are one continuous unit, so the
+   join between them is a beat rather than a full section break. */
+.about-intro + .about-method { padding-top: calc(var(--space-section) * 0.5); }
+.about-close { padding: 0 0 var(--space-section); }
+
+/* ---------- masthead ---------- */
+
+.about-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1.18;
+  color: var(--ink);
+  margin: 0 0 28px;
+  max-width: 18ch;
+}
+
+.about-byline {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--stone-line);
+}
+
+.about-byline-initials {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.about-byline-role {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bronze-deep);
+}
+
+/* ---------- body copy ---------- */
+
+.about-body p {
+  font-size: var(--fs-body);
+  line-height: 1.72;
+  color: var(--ink);
+  margin: 0 0 26px;
+}
+
+.about-body p:last-child { margin-bottom: 0; }
+
+/* A single-sentence paragraph carries a beat on its own, so it gets air
+   rather than a heading. */
+.about-body .about-beat {
+  color: var(--ink-dim);
+  margin: 34px 0;
+}
+
+.about-quote {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(21px, 2.2vw, 27px);
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 38px 0;
+  padding-left: 22px;
+  border-left: 2px solid var(--bronze);
+}
+
+/* ---------- career arc, the one dark passage ---------- */
+
+.about-arc {
+  background: var(--charcoal);
+  color: var(--paper);
+  padding: var(--space-section) 0;
+}
+
+.about-arc .eyebrow { color: var(--bronze-soft); }
+
+/* Bronze on ivory needs the deeper step to stay legible at 12px. */
+.about-intro .eyebrow-light { color: var(--bronze-deep); }
+
+.about-arc-lead {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.3;
+  color: var(--paper);
+  margin: 0 0 44px;
+  max-width: 22ch;
+}
+
+.about-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.about-tl-step {
+  padding: 22px 0;
+  border-top: 1px solid var(--charcoal-line);
+}
+
+.about-tl-step:last-of-type { border-bottom: 1px solid var(--charcoal-line); }
+
+.about-tl-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bronze-soft);
+  margin-bottom: 8px;
+}
+
+.about-tl-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--paper-dim);
+}
+
+/* ---------- signoff and close ---------- */
+
+.about-signoff {
+  padding-top: 24px;
+  border-top: 1px solid var(--stone-line);
+}
+
+.about-signoff-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bronze-deep);
+  margin-bottom: 6px;
+}
+
+.about-signoff-line {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-dim);
+}
+
+.about-cta {
+  margin-top: 40px;
+  padding-top: 34px;
+  border-top: 1px solid var(--stone-line);
+}
+
+/* ---------- footer contrast, About-scoped ----------
+   phase3.css sets .footer-light to --ink-faint, which measures 2.38:1 on
+   ivory. Deepened here for About only so the homepage is untouched. */
+
+.footer-light { color: var(--ink-dim); }
+
+/* ---------- accessibility helper ---------- */
+
+.vh {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 860px) {
+  .about-title { max-width: none; }
+  .about-arc-lead { max-width: none; }
+}
+
+@media (max-width: 560px) {
+  .about-byline { flex-direction: column; gap: 6px; }
+  .about-quote { padding-left: 16px; margin: 30px 0; }
+}

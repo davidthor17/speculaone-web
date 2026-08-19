@@ -1,0 +1,41 @@
+// Specula One — Owners lead-capture form
+// Ported verbatim from script.js (the live site) so prototype behavior
+// matches production exactly: same Supabase project, same table, same
+// field mapping, same success/error copy.
+
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const supabase = createClient(
+  'https://zbmhfdoqmzzscdklziss.supabase.co',
+  'sb_publishable_s7RALrw2f5eXx5lMKGhqOw_isP5_II-'
+);
+
+const ownersForm = document.getElementById('ownersForm');
+const ownersNote = document.getElementById('ownersNote');
+if (ownersForm) {
+  ownersForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const [propertyInput, emailInput] = ownersForm.querySelectorAll('input');
+    const focusAreaSelect = ownersForm.querySelector('#focusArea');
+    const packageSelect = ownersForm.querySelector('#packageSelect');
+    const submitBtn = ownersForm.querySelector('button');
+    submitBtn.disabled = true;
+    ownersNote.textContent = 'Sending…';
+    const { error } = await supabase.from('leads').insert({
+      property_name: propertyInput.value,
+      email: emailInput.value,
+      focus_area: focusAreaSelect ? focusAreaSelect.value || null : null,
+      package: packageSelect ? packageSelect.value || null : null,
+    });
+
+    submitBtn.disabled = false;
+    if (error) {
+      ownersNote.textContent = "Something went wrong. Please email us directly instead.";
+      ownersNote.style.color = '#E05555';
+    } else {
+      ownersNote.textContent = 'Request received. We reply within two business days.';
+      ownersNote.style.color = '';
+      ownersForm.reset();
+    }
+  });
+}

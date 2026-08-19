@@ -3,106 +3,159 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>The Person Behind Specula - Specula</title>
+<title>About Specula. Independent hotel assessment.</title>
+<meta name="description" content="Why Specula exists. The difference between what a hotel believes it delivers and what a guest actually experiences, told by the person who built it." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
 <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png" />
-<link rel="stylesheet" href="style.css" />
-<link rel="stylesheet" href="report.css" />
-<style>
-  .about-main { max-width: 720px; margin: 0 auto; padding: 64px 24px 96px; }
-  .about-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.12em; color: var(--gold, #C9AA71); text-transform: uppercase; margin-bottom: 8px; }
-  .about-title { font-family: 'Fraunces', Georgia, serif; font-size: 34px; margin: 0 0 4px; }
-  .about-subtitle { font-size: 15px; color: var(--dim, #888898); margin-bottom: 40px; }
-  .about-initials { font-family: 'Fraunces', Georgia, serif; font-size: 22px; margin: 0 0 2px; }
-  .about-role { font-size: 13px; color: var(--gold, #C9AA71); letter-spacing: 0.04em; margin-bottom: 32px; }
-  .about-body p { font-size: 16px; line-height: 1.75; margin: 0 0 20px; }
-  .about-timeline { display: flex; flex-direction: column; gap: 4px; margin: 40px 0; }
-  .about-tl-step { padding: 16px 20px; border: 1px solid var(--border, #28282F); border-radius: 10px; }
-  .about-tl-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--gold, #C9AA71); margin-bottom: 4px; }
-  .about-tl-desc { font-size: 13px; color: var(--dim, #888898); }
-  .about-tl-arrow { text-align: center; color: var(--muted, #444450); font-size: 14px; }
-  .about-signoff { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border, #28282F); font-size: 13px; color: var(--dim, #888898); }
-  .about-quote { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 18px; margin-top: 16px; color: var(--text, #EEEAE4); }
-</style>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="hero-prototype.css" />
+<link rel="stylesheet" href="phase3.css" />
+<link rel="stylesheet" href="about.css" />
 </head>
 <body>
+
   <header class="nav">
     <a href="index.html" class="nav-mark">SPECULA</a>
-    <nav class="nav-links">
-      <a href="index.html#process">The Process</a>
-      <a href="index.html#why">Why Specula</a>
-      <a href="index.html#owners" class="nav-cta">For Hotels</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="index.html#approach">Approach</a>
+      <a href="index.html#services">Services</a>
+      <a href="#">Insights</a>
+      <a href="about.html" class="active" aria-current="page">About</a>
+      <a href="index.html#owners">Contact</a>
     </nav>
+    <div class="nav-right">
+      <a href="index.html#owners" class="nav-cta">Request Audit →</a>
+      <button type="button" class="nav-menu-trigger" id="menuTrigger" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu">Menu</button>
+    </div>
   </header>
 
-  <main class="about-main">
-    <p class="about-kicker">The Person Behind Specula</p>
-    <h1 class="about-title">Built from the inside of luxury hospitality.</h1>
-
-    <p class="about-initials">D.T.</p>
-    <p class="about-role">Founder, Specula</p>
-
-    <div class="about-body">
-      <p>My career in hospitality began on the front line.</p>
-
-      <p>At a five-star property in Iceland, I started as a Host - welcoming guests, guiding them through the property, and becoming deeply familiar with every part of the experience.</p>
-
-      <p>The role taught me that luxury hospitality is rarely about simply delivering what is requested. It is about understanding what a guest wants before they have to ask, handling demanding requests calmly, and turning expectations into experiences guests remember.</p>
-
-      <p>I eventually progressed into a Butler role, entrusted with the personal experience of high-net-worth and high-profile guests, becoming their primary point of contact and, in many cases, the face of the property during their stay.</p>
-
-      <p>That experience became the foundation for Specula.</p>
-
-      <p>I saw first-hand the difference between what a hotel believes it delivers and what a guest actually experiences. I also learned that the details that matter most are often the ones that never appear on a standard inspection sheet.</p>
-
-      <p>The way a guest is welcomed when nobody knows they are being observed. The way a difficult request is handled. The small problem that is solved before it becomes a complaint. The difference between service that is technically correct and service that feels genuinely exceptional.</p>
-
-      <p>That is where Specula began.</p>
-
-      <p>Specula was created to experience hotels exactly as their guests do, without advance notice, without preferential treatment, and without the property knowing that an audit is taking place.</p>
-
-      <p>We make the booking. We arrive as guests. We experience the property as guests. And we document what happens.</p>
-
-      <p>The audit is conducted anonymously. The property does not know when the audit is taking place, who the auditor is, or that their guest experience is being evaluated.</p>
-
-      <p>The hotel sees a guest. Specula sees the experience.</p>
-
-      <p>The purpose is not to find fault, and it is not to sell a consultancy report. It is to answer one simple question:</p>
-
-      <p class="about-quote">What does this hotel actually feel like to a guest?</p>
-
-      <p>Because the most revealing hotel inspection is the one the hotel doesn't know is happening.</p>
-    </div>
-
-    <div class="about-timeline">
-      <div class="about-tl-step">
-        <div class="about-tl-label">HOST</div>
-        <div class="about-tl-desc">Guest arrival - Property knowledge - Guest requests</div>
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <div class="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="Site navigation">
+      <div class="mobile-menu-top">
+        <a href="index.html" class="nav-mark">SPECULA</a>
+        <button type="button" class="mobile-menu-close" id="menuClose" aria-label="Close menu">Close</button>
       </div>
-      <div class="about-tl-arrow">↓</div>
-      <div class="about-tl-step">
-        <div class="about-tl-label">BUTLER</div>
-        <div class="about-tl-desc">Personal responsibility - High-net-worth guests - Bespoke experiences</div>
-      </div>
-      <div class="about-tl-arrow">↓</div>
-      <div class="about-tl-step">
-        <div class="about-tl-label">SPECULA</div>
-        <div class="about-tl-desc">Independent - Anonymous - Guest-led audits</div>
-      </div>
+      <nav class="mobile-menu-links" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="index.html#approach">Approach</a>
+        <a href="index.html#services">Services</a>
+        <a href="#">Insights</a>
+        <a href="about.html" class="active" aria-current="page">About</a>
+        <a href="index.html#owners">Contact</a>
+      </nav>
     </div>
+  </div>
 
-    <div class="about-signoff">
-      <div>D.T., Founder</div>
-      <div>Luxury hospitality. Guest experience. Independent observation.</div>
-    </div>
+  <main>
+
+    <!-- ============ MASTHEAD AND OPENING ============ -->
+    <section class="about-intro" aria-labelledby="about-title">
+      <div class="about-col">
+        <p class="eyebrow eyebrow-light">The Person Behind Specula</p>
+        <h1 class="about-title" id="about-title">Built from the inside of luxury hospitality.</h1>
+        <p class="about-byline">
+          <span class="about-byline-initials">D.T.</span>
+          <span class="about-byline-role">Founder, Specula</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ THE CAREER NARRATIVE ============ -->
+    <section class="about-method" aria-labelledby="about-origin">
+      <div class="about-col">
+        <h2 class="vh" id="about-origin">Where it began</h2>
+        <div class="about-body">
+          <p>My career in hospitality began on the front line.</p>
+
+          <p>At a five-star property in Iceland, I started as a Host, welcoming guests, guiding them through the property, and becoming deeply familiar with every part of the experience.</p>
+
+          <p>The role taught me that luxury hospitality is rarely about simply delivering what is requested. It is about understanding what a guest wants before they have to ask, handling demanding requests calmly, and turning expectations into experiences guests remember.</p>
+
+          <p>I eventually progressed into a Butler role, entrusted with the personal experience of high-net-worth and high-profile guests, becoming their primary point of contact and, in many cases, the face of the property during their stay.</p>
+
+          <p class="about-beat">That experience became the foundation for Specula.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ THE ARC, THE ONE DARK PASSAGE ============ -->
+    <section class="about-arc" aria-labelledby="about-arc-title">
+      <div class="about-col">
+        <p class="eyebrow">The Progression</p>
+        <h2 class="about-arc-lead" id="about-arc-title">Three roles. One vantage point.</h2>
+        <div class="about-timeline">
+          <div class="about-tl-step">
+            <div class="about-tl-label">Host</div>
+            <div class="about-tl-desc">Guest arrival · Property knowledge · Guest requests</div>
+          </div>
+          <div class="about-tl-step">
+            <div class="about-tl-label">Butler</div>
+            <div class="about-tl-desc">Personal responsibility · High-net-worth guests · Bespoke experiences</div>
+          </div>
+          <div class="about-tl-step">
+            <div class="about-tl-label">Specula</div>
+            <div class="about-tl-desc">Independent · Anonymous · Guest-led audits</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHAT THE INSPECTION SHEET MISSES ============ -->
+    <section class="about-method" aria-labelledby="about-why">
+      <div class="about-col">
+        <h2 class="vh" id="about-why">Why Specula exists</h2>
+        <div class="about-body">
+          <p>I saw first-hand the difference between what a hotel believes it delivers and what a guest actually experiences. I also learned that the details that matter most are often the ones that never appear on a standard inspection sheet.</p>
+
+          <p>The way a guest is welcomed when nobody knows they are being observed. The way a difficult request is handled. The small problem that is solved before it becomes a complaint. The difference between service that is technically correct and service that feels genuinely exceptional.</p>
+
+          <p class="about-beat">That is where Specula began.</p>
+
+          <p>Specula was created to experience hotels exactly as their guests do, without advance notice, without preferential treatment, and without the property knowing that an audit is taking place.</p>
+
+          <p>We make the booking. We arrive as guests. We experience the property as guests. And we document what happens.</p>
+
+          <p>The audit is conducted anonymously. The property does not know when the audit is taking place, who the auditor is, or that their guest experience is being evaluated.</p>
+
+          <p class="about-beat">The hotel sees a guest. Specula sees the experience.</p>
+
+          <p>The purpose is not to find fault, and it is not to sell a consultancy report. It is to answer one simple question:</p>
+
+          <p class="about-quote">What does this hotel actually feel like to a guest?</p>
+
+          <p>Because the most revealing hotel inspection is the one the hotel doesn't know is happening.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SIGNOFF AND CTA ============ -->
+    <section class="about-close" aria-labelledby="about-next">
+      <div class="about-col">
+        <h2 class="vh" id="about-next">Request an audit</h2>
+        <div class="about-signoff">
+          <div class="about-signoff-name">D.T., Founder</div>
+          <div class="about-signoff-line">Luxury hospitality. Guest experience. Independent observation.</div>
+        </div>
+        <div class="about-cta">
+          <a href="index.html#owners" class="btn btn-dark">Request an audit →</a>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <footer class="footer">
+  <footer class="footer-light">
     <a href="index.html" class="footer-mark">SPECULA</a>
-    <p>© 2026 Specula. Independent hotel certification.</p>
+    <p>© 2026 Specula. Independent hotel assessment.</p>
   </footer>
+
+  <script type="module" src="nav-menu.js"></script>
 </body>
 </html>
