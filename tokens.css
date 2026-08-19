@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Specula One — Design Tokens (Phase 1 draft)
+   Warm ivory / stone / charcoal / restrained bronze.
+   Not yet wired into style.css — lives standalone until the redesign
+   is approved section by section, then gets merged in.
+   ========================================================================== */
+
+:root {
+  /* ---- surfaces (light) ---- */
+  --ivory: #F6F2EA;
+  --ivory-deep: #EFE8DA;
+  --stone: #E4DBC9;
+  --stone-line: #DCD1BC;
+
+  /* ---- surfaces (dark) ---- */
+  --charcoal: #15130F;
+  --charcoal-soft: #1D1A15;
+  --charcoal-line: #2B271F;
+
+  /* ---- accent ---- */
+  --bronze: #B08E5E;
+  --bronze-soft: #C7A97A;
+  /* Deep enough for small bronze text to clear WCAG AA on both --ivory and
+     the darker --ivory-deep tint. --bronze itself measures 2.73:1 on --ivory
+     and is reserved for larger marks and non-text accents. */
+  --bronze-deep: #735835;
+  --bronze-line: rgba(176, 142, 94, 0.35);
+  --bronze-glow: rgba(199, 169, 122, 0.28);
+
+  /* ---- ink (on light) ---- */
+  --ink: #211D16;
+  --ink-dim: #6E6656;
+  --ink-faint: #A79E8A;
+
+  /* ---- paper (on dark) ---- */
+  --paper: #F6F2EA;
+  --paper-dim: rgba(246, 242, 234, 0.62);
+  --paper-faint: rgba(246, 242, 234, 0.34);
+
+  /* ---- type ---- */
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+
+  /* ---- type scale ----
+     h2 sized to support content, not dominate a one-viewport section */
+  --fs-hero: clamp(44px, 6.2vw, 88px);
+  --fs-h2: clamp(26px, 2.6vw, 36px);
+  --fs-eyebrow: 12px;
+  --fs-nav: 13px;
+  --fs-body: 17px;
+
+  /* ---- spacing ----
+     trimmed so a single-statement section fits one desktop viewport
+     without forcing an immediate scroll */
+  --space-section: clamp(64px, 6.5vw, 112px);
+  --space-gutter: 8vw;
+
+  /* ---- motion ---- */
+  --ease-elegant: cubic-bezier(.22, .8, .2, 1);
+}

@@ -1,1 +1,6 @@
 node_modules
+.env
+
+# Original full-size source images. Kept locally for re-exporting, never
+# shipped: the site serves only the optimized WebP files in images/.
+images/_originals/

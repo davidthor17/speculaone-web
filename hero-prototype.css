@@ -1,0 +1,368 @@
+/* ==========================================================================
+   Specula One — Hero / Portal Prototype (Phase 1)
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* Anchor targets clear the sticky nav (approx 99px) on hash navigation. */
+main section[id] { scroll-margin-top: 110px; }
+
+body {
+  margin: 0;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; margin: 0; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- nav ---------- */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px var(--space-gutter);
+  background: rgba(246, 242, 234, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.nav-mark {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.15;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+.nav-mark span { display: block; color: var(--ink-dim); font-size: 14px; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  font-size: var(--fs-nav);
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+}
+.nav-links a { position: relative; padding-bottom: 4px; transition: color 0.2s ease; }
+.nav-links a:hover { color: var(--ink); }
+.nav-links a.active { color: var(--ink); }
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: var(--bronze);
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-cta:hover { background: var(--ink); color: var(--ivory); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.nav-menu-trigger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+body.menu-open { overflow: hidden; }
+
+@media (max-width: 860px) {
+  .nav-links { display: none; }
+  .nav-menu-trigger { display: inline-block; }
+}
+
+@media (max-width: 480px) {
+  .nav { padding-left: 5vw; padding-right: 5vw; }
+  .nav-right { gap: 16px; }
+}
+
+/* ---------- mobile menu overlay ---------- */
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--ivory);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-elegant), visibility 0s linear 0.4s;
+}
+.mobile-menu.is-open {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.4s var(--ease-elegant), visibility 0s linear 0s;
+}
+
+.mobile-menu-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 30px var(--space-gutter);
+  transform: translateY(-14px);
+  transition: transform 0.4s var(--ease-elegant);
+}
+.mobile-menu.is-open .mobile-menu-panel {
+  transform: translateY(0);
+}
+
+.mobile-menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 15vh;
+}
+.mobile-menu-links a {
+  font-family: var(--serif);
+  font-size: clamp(28px, 7vw, 42px);
+  color: var(--ink);
+  transition: color 0.2s ease;
+}
+.mobile-menu-links a:hover,
+.mobile-menu-links a.active { color: var(--bronze); }
+
+/* ---------- hero ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 48px var(--space-gutter) 64px;
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bronze-deep);
+  margin: 0 0 22px;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: var(--fs-hero);
+  line-height: 1.03;
+  letter-spacing: -0.01em;
+  margin: 0 0 28px;
+  color: var(--ink);
+}
+.hero h1 .accent { color: var(--bronze-deep); font-style: italic; font-weight: 400; }
+
+.hero-sub {
+  font-size: var(--fs-body);
+  color: var(--ink-dim);
+  max-width: 42ch;
+  margin: 0 0 42px;
+}
+
+.hero-actions { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 30px;
+  border-radius: 2px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.2s var(--ease-elegant), background 0.2s ease, opacity 0.2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-dark { background: var(--ink); color: var(--ivory); }
+.btn-dark:hover { background: var(--charcoal); }
+
+.watch-journey {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  transition: color 0.2s ease;
+}
+.watch-journey:hover { color: var(--ink); }
+
+/* ---------- portal (real photograph) ---------- */
+
+.portal-wrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  perspective: 1800px;
+}
+
+.portal-frame {
+  position: relative;
+  width: min(900px, 54vw);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.5s var(--ease-elegant);
+  /* soft vignette feather so the photo dissolves into the page
+     instead of sitting on it as a hard-edged rectangle */
+  -webkit-mask-image: radial-gradient(120% 120% at 50% 48%, #000 62%, transparent 100%);
+  mask-image: radial-gradient(120% 120% at 50% 48%, #000 62%, transparent 100%);
+}
+
+.portal-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: scale(1.08);
+  transition: transform 0.6s var(--ease-elegant);
+  will-change: transform;
+}
+
+.portal-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 244, 222, 0.4) 0%, rgba(255, 244, 222, 0) 55%);
+  mix-blend-mode: soft-light;
+  animation: glow-breathe 11s ease-in-out infinite;
+  transition: transform 0.6s var(--ease-elegant);
+  pointer-events: none;
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding-top: 40px; text-align: left; }
+  .portal-wrap { margin-top: 48px; justify-content: center; }
+  .portal-frame { width: min(560px, 92vw); }
+}
+
+/* ---------- scroll cue ---------- */
+
+.scroll-cue {
+  position: fixed;
+  right: var(--space-gutter);
+  bottom: 28px;
+  width: 56px;
+  height: 56px;
+  z-index: 15;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-dim);
+}
+.scroll-cue svg { width: 100%; height: 100%; }
+.scroll-cue .ring-text { animation: cue-spin 22s linear infinite; transform-origin: 50% 50%; }
+.scroll-cue .cue-arrow { animation: cue-bob 2.2s ease-in-out infinite; }
+
+@keyframes cue-spin { to { transform: rotate(360deg); } }
+@keyframes cue-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .scroll-cue { display: none; }
+}
+
+/* keyboard focus */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--bronze); outline-offset: 2px; }
+
+/* Available to assistive tech, hidden from view. Used for section headings
+   that the visual design carries through spacing rather than a title. */
+.vh {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Touch target expansion.
+   These controls are visually small by design, so the hit area is grown with
+   an overlay rather than padding. Nothing shifts, the nav keeps its height,
+   and the visible graphics stay exactly the same size. */
+.nav-mark,
+.nav-cta,
+.nav-menu-trigger,
+.mobile-menu-close { position: relative; }
+
+.nav-mark::after,
+.nav-cta::after,
+.nav-menu-trigger::after,
+.mobile-menu-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(100%, 44px);
+  height: 44px;
+}
