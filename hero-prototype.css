@@ -8,6 +8,11 @@ html { scroll-behavior: smooth; }
 /* Anchor targets clear the sticky nav (approx 99px) on hash navigation. */
 main section[id] { scroll-margin-top: 110px; }
 
+/* Owners sits directly below the near-black Mark section, so the shared
+   110px margin left an 11px gap that exposed Mark's dark background as a
+   bar above Owners. Flush against the nav height instead. */
+#owners { scroll-margin-top: 99px; }
+
 body {
   margin: 0;
   background: var(--ivory);
