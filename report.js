@@ -25,6 +25,18 @@ const SECTION_ORDER = Object.keys(SECTION_LABELS);
 
 const root = document.getElementById('report-root');
 
+// Supabase-sourced text is rendered via innerHTML below, so it has to be
+// escaped here rather than trusted as markup.
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[c]));
+}
+
 function renderNotFound() {
   root.innerHTML = `
     <div class="report-empty">
@@ -125,8 +137,8 @@ function renderReport(audit, items) {
   const failureRows = failures.length
     ? failures.map(f => `
         <div class="report-failure">
-          <div class="report-failure-label">${f.label || f.itemId}</div>
-          ${f.note ? `<div class="report-failure-note">${f.note}</div>` : ''}
+          <div class="report-failure-label">${escapeHtml(f.label || f.itemId)}</div>
+          ${f.note ? `<div class="report-failure-note">${escapeHtml(f.note)}</div>` : ''}
         </div>
       `).join('')
     : `<p class="report-empty-sub">No critical failures recorded during this audit.</p>`;
@@ -134,8 +146,8 @@ function renderReport(audit, items) {
   root.innerHTML = `
    <div class="report-head-block">
       <p class="section-eyebrow">Audit Report · ${audit.ref}</p>
-      <h1>${prop.name}</h1>
-      <p class="report-sub">${[prop.city, prop.country].filter(Boolean).join(', ')} · ${prop.category || ''} · Audited ${new Date(audit.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <h1>${escapeHtml(prop.name)}</h1>
+      <p class="report-sub">${[prop.city, prop.country].filter(Boolean).map(escapeHtml).join(', ')} · ${escapeHtml(prop.category || '')} · Audited ${new Date(audit.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
       <button id="downloadPdfBtn" class="btn btn-ghost report-pdf-btn">Download PDF</button>
     </div>
 
@@ -151,7 +163,7 @@ function renderReport(audit, items) {
     ${audit.auditor_summary ? `
       <div class="report-block">
         <p class="section-eyebrow">Auditor Summary</p>
-        <p class="report-summary-text">${audit.auditor_summary}</p>
+        <p class="report-summary-text">${escapeHtml(audit.auditor_summary)}</p>
       </div>
     ` : ''}
 
