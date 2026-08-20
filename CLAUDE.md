@@ -203,13 +203,16 @@ Do not redesign About unless explicitly instructed.
 
 ## 9. Packages
 
-There are three assessment levels:
+There are three assessment levels, each with its own outcome:
 
 Desk Review
-Spot Audit
-Full Audit
+No status. No Specula Mark.
 
-Only Spot Audit and Full Audit can earn the Specula Mark.
+Spot Audit
+Reviewed by Specula, when the required standard is met. No Specula Mark.
+
+Full Audit
+Certified by Specula, when the required standard is met. The Specula Mark is awarded, and is reserved for Full Audits only.
 
 The Packages section should communicate the distinction clearly.
 
