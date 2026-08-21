@@ -21,9 +21,7 @@
   margin: 0 0 32px;
 }
 
-/* ---------- reveal (shared) ---------- */
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease-elegant), transform 0.8s var(--ease-elegant); }
-.reveal.in-view { opacity: 1; transform: translateY(0); }
+/* .reveal now lives in base.css (canonical for the public site). */
 
 /* ---------- packages ---------- */
 
@@ -168,7 +166,10 @@
 
 @media (max-width: 560px) { .owners-form .btn-dark { flex-basis: auto; width: 100%; } }
 
-/* ---------- footer ---------- */
+/* ---------- footer ----------
+   Canonical footer for index.html and about.html. about.css overrides its
+   text color for a documented contrast reason on that page; the base rule
+   here is otherwise the single source. */
 
 .footer-light {
   background: var(--ivory);
