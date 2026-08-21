@@ -1,8 +1,7 @@
 /* ==========================================================================
-   Specula One — Design Tokens (Phase 1 draft)
-   Warm ivory / stone / charcoal / restrained bronze.
-   Not yet wired into style.css — lives standalone until the redesign
-   is approved section by section, then gets merged in.
+   Specula One — Design Tokens
+   Warm ivory / stone / charcoal / restrained bronze. Loaded on every page
+   (index.html, about.html, report.html) as the single token source.
    ========================================================================== */
 
 :root {
@@ -58,4 +57,24 @@
 
   /* ---- motion ---- */
   --ease-elegant: cubic-bezier(.22, .8, .2, 1);
+
+  /* ---- report palette ----
+     The audit report page (report.html/report.css/report.js) uses its own
+     dark palette, kept separate from --charcoal/--bronze above on purpose:
+     these are cool-neutral (a blue-grey near-black, a warm-white gold),
+     while --charcoal/--bronze are warm-neutral. They read close but are not
+     the same colors, so they stay distinct values rather than being merged
+     into one. This is the only place they're defined; report.html loads
+     this file so nothing else declares its own copy. */
+  --report-bg: #0C0C0F;
+  --report-surface: #141418;
+  --report-surface2: #1C1C22;
+  --report-border: #28282F;
+  --report-gold: #C9AA71;
+  --report-gold-bg: rgba(201, 170, 113, 0.12);
+  --report-gold-border: rgba(201, 170, 113, 0.35);
+  --report-silver: #A9AAB4;
+  --report-text: #EEEAE4;
+  --report-dim: #888898;
+  --report-muted: #444450;
 }
