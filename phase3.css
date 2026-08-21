@@ -55,15 +55,7 @@
 .pkg-card-featured .pkg-deliver-label,
 .pkg-card-featured .pkg-scope { color: var(--ink); }
 
-.pkg-cta {
-  text-align: center; font-size: 13px; font-weight: 500; padding: 13px 26px;
-  border: 1px solid var(--ink); border-radius: 2px; color: var(--ink);
-  letter-spacing: 0.06em; text-transform: uppercase;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-.pkg-cta:hover { background: var(--ink); color: var(--ivory); }
-.pkg-cta-solid { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
-.pkg-cta-solid:hover { background: var(--charcoal); }
+/* .pkg-cta/.pkg-cta-solid now live in components.css (shared CTA system). */
 
 .pkg-philosophy { max-width: 640px; padding-top: 14px; border-top: 1px solid var(--stone-line); }
 .pkg-philosophy-lead { font-family: var(--serif); font-size: 17px; color: var(--ink); margin: 0 0 6px; }

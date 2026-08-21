@@ -55,20 +55,7 @@ main section[id] { scroll-margin-top: 110px; }
   background: var(--bronze);
 }
 
-.nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border: 1px solid var(--ink);
-  border-radius: 2px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink);
-  transition: background 0.2s ease, color 0.2s ease;
-}
-.nav-cta:hover { background: var(--ink); color: var(--ivory); }
+/* .nav-cta now lives in components.css (shared CTA system). */
 
 .nav-right {
   display: flex;
@@ -206,23 +193,7 @@ body.menu-open { overflow: hidden; }
 
 .hero-actions { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 30px;
-  border-radius: 2px;
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: transform 0.2s var(--ease-elegant), background 0.2s ease, opacity 0.2s ease;
-}
-.btn:hover { transform: translateY(-1px); }
-.btn-dark { background: var(--ink); color: var(--ivory); }
-.btn-dark:hover { background: var(--charcoal); }
+/* .btn/.btn-dark now live in components.css (shared CTA system). */
 
 .watch-journey {
   display: inline-flex;
