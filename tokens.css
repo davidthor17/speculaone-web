@@ -34,7 +34,6 @@
   /* ---- paper (on dark) ---- */
   --paper: #F6F2EA;
   --paper-dim: rgba(246, 242, 234, 0.62);
-  --paper-faint: rgba(246, 242, 234, 0.34);
 
   /* ---- type ---- */
   --serif: 'Fraunces', Georgia, serif;
