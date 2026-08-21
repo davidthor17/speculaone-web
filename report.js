@@ -179,7 +179,10 @@ function renderReport(audit, items) {
   `;
 
   const pdfBtn = document.getElementById('downloadPdfBtn');
-  if (pdfBtn) pdfBtn.addEventListener('click', () => window.print());
+  if (pdfBtn) pdfBtn.addEventListener('click', () => {
+    if (typeof window.plausible === 'function') window.plausible('Report PDF Downloaded');
+    window.print();
+  });
 }
 
 async function load() {

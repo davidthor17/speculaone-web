@@ -32,10 +32,23 @@ if (ownersForm) {
     if (error) {
       ownersNote.textContent = "Something went wrong. Please email us directly instead.";
       ownersNote.style.color = '#E05555';
+      if (typeof window.plausible === 'function') window.plausible('Lead Submission Failed');
     } else {
       ownersNote.textContent = 'Request received. We reply within two business days.';
       ownersNote.style.color = '';
       ownersForm.reset();
+      if (typeof window.plausible === 'function') window.plausible('Lead Submitted');
     }
   });
 }
+
+// Delegated listener for package CTAs (.pkg-cta, data-package="…") so the
+// analytics call lives in one place instead of duplicated inline handlers.
+document.addEventListener('click', (e) => {
+  const cta = e.target.closest('.pkg-cta');
+  if (!cta) return;
+  const pkg = cta.dataset.package;
+  const packageSelect = document.getElementById('packageSelect');
+  if (packageSelect && pkg) packageSelect.value = pkg;
+  if (typeof window.plausible === 'function') window.plausible('Package Interest');
+});
