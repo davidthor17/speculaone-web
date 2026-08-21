@@ -1,9 +1,9 @@
 /* ==========================================================================
    Specula One — Hero / Portal Prototype (Phase 1)
+   Reset, body defaults, and .reveal now live in base.css (loaded before this
+   file). This file starts from the nav, which is the canonical shared nav
+   for index.html and about.html.
    ========================================================================== */
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 
 /* Anchor targets clear the sticky nav (approx 99px) on hash navigation. */
 main section[id] { scroll-margin-top: 110px; }
@@ -12,22 +12,6 @@ main section[id] { scroll-margin-top: 110px; }
    110px margin left an 11px gap that exposed Mark's dark background as a
    bar above Owners. Flush against the nav height instead. */
 #owners { scroll-margin-top: 99px; }
-
-body {
-  margin: 0;
-  background: var(--ivory);
-  color: var(--ink);
-  font-family: var(--sans);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-a { color: inherit; text-decoration: none; }
-ul { list-style: none; margin: 0; padding: 0; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
-}
 
 /* ---------- nav ---------- */
 

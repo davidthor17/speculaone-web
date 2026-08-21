@@ -1,0 +1,30 @@
+/* ==========================================================================
+   Specula One — Base
+   Shared foundation for the public marketing pages (index.html, about.html):
+   reset, page-wide defaults, and the .reveal scroll-in utility. Depends on
+   tokens.css being loaded first. report.html has its own separate copy in
+   style.css and is not affected by this file.
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; margin: 0; padding: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- reveal (shared) ---------- */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.8s var(--ease-elegant), transform 0.8s var(--ease-elegant); }
+.reveal.in-view { opacity: 1; transform: translateY(0); }
