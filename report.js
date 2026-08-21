@@ -50,8 +50,8 @@ function renderNotFound() {
 
 const PASS_THRESHOLD = 85;
 const TIER_META = {
-  full: { sealColor: '#C9AA71', ringText: 'SPECULA · CERTIFIED PROPERTY ·', label: 'Full Audit' },
-  spot: { sealColor: '#A9AAB4', ringText: 'SPECULA · REVIEWED ·', label: 'Spot Audit' },
+  full: { sealColor: 'var(--report-gold)', ringText: 'SPECULA · CERTIFIED PROPERTY ·', label: 'Full Audit' },
+  spot: { sealColor: 'var(--report-silver)', ringText: 'SPECULA · REVIEWED ·', label: 'Spot Audit' },
   desk: { sealColor: null, ringText: '', label: 'Desk Review' },
 };
 
@@ -112,7 +112,7 @@ function renderReport(audit, items) {
       `
       : `
         <div class="report-noseal-block">
-          <p class="report-seal-title" style="color:var(--dim)">Does not currently meet the Specula standard</p>
+          <p class="report-seal-title" style="color:var(--report-dim)">Does not currently meet the Specula standard</p>
           <p class="report-seal-sub">${tierMeta.label} · no seal issued for this audit.</p>
         </div>
       `;
