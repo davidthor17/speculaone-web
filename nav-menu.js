@@ -10,6 +10,31 @@ const main = document.querySelector('main');
 const footer = document.querySelector('.footer-light');
 const backgroundEls = [header, main, footer].filter(Boolean);
 
+function injectContactEmail() {
+  const email = 'contact@speculaone.com';
+
+  if (footer && !footer.querySelector('[data-specula-contact]')) {
+    const contact = document.createElement('p');
+    contact.dataset.speculaContact = 'true';
+
+    const link = document.createElement('a');
+    link.href = `mailto:${email}`;
+    link.textContent = email;
+    contact.appendChild(link);
+    footer.appendChild(contact);
+  }
+
+  const footnote = document.querySelector('.owners-footnote');
+  if (footnote && !footnote.querySelector('a')) {
+    footnote.textContent = 'We will respond directly to your inquiry. You can also reach us at ';
+    const link = document.createElement('a');
+    link.href = `mailto:${email}`;
+    link.textContent = email;
+    footnote.appendChild(link);
+    footnote.append('.');
+  }
+}
+
 function onKeydown(e) {
   if (e.key === 'Escape') closeMenu();
 }
@@ -33,6 +58,8 @@ function closeMenu() {
   document.removeEventListener('keydown', onKeydown);
   trigger.focus();
 }
+
+injectContactEmail();
 
 if (trigger && menu && closeBtn) {
   trigger.addEventListener('click', openMenu);
