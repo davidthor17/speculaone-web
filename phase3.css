@@ -172,6 +172,19 @@
 }
 .footer-light .footer-mark { font-family: var(--serif); letter-spacing: 0.18em; color: var(--ink-dim); }
 
+/* The public contact address, in the footer and in the lead form footnote.
+   base.css strips link affordance site wide (a { color: inherit;
+   text-decoration: none }), which is right for nav and card links but leaves
+   the address inside the footnote sentence indistinguishable from the text
+   around it. A hairline underline restores that affordance without adding a
+   colour that is not already in the palette. */
+.footer-light a[href^="mailto:"],
+.owners-footnote a[href^="mailto:"] {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 560px) {
   .footer-light { flex-direction: column; gap: 10px; text-align: center; }
 }
