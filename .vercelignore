@@ -1,2 +1,27 @@
+# Not part of the site. Everything listed here is excluded from the deployment
+# upload, so it has no URL on speculaone.com.
+#
+# Verified against the live site rather than assumed: CLAUDE.md and scripts/
+# have been listed here since before this change and both return 404, while
+# index.html and report.js serve normally.
+
 CLAUDE.md
 scripts/
+
+# Local development and verification only.
+#
+# dev/report-harness.html renders complete audit reports from hand-built
+# payloads, including a passing Full Audit showing the Specula Mark for a
+# property that does not exist. That must never be reachable on the company
+# domain, where it would read as a genuine certification. A noindex meta tag
+# stops search engines and nobody else, so the file is excluded here and lives
+# outside the site tree.
+dev/
+
+# Node test tooling. package.json exists only so `node --test` can run and so
+# Node reads the root .js modules as ESM. Nothing here is bundled or served,
+# and excluding it keeps the deployment identical to the static passthrough
+# that is live today.
+package.json
+package-lock.json
+node_modules/

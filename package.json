@@ -2,8 +2,8 @@
   "name": "speculaone-web",
   "private": true,
   "type": "module",
-  "description": "Static site. This exists only so node --test can run the pure report logic; nothing here is bundled or shipped.",
+  "description": "Static site, served as-is. This file is NOT part of the deployment: it is listed in .vercelignore, and vercel.json pins framework/build/install/output so the deployment cannot depend on its presence. It exists so `node --test` can run, and so Node reads the root .js modules as ESM rather than CommonJS.",
   "scripts": {
-    "test": "node --test \"test/**/*.js\""
+    "test": "node --test \"dev/test/**/*.js\""
   }
 }

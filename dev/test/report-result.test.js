@@ -13,7 +13,7 @@ import {
   resolveLegacyBasis, recomputeFromItems, worstStatusByItem,
   formatBasisDate, SECTION_LABELS, SECTION_ORDER,
   SUPPORTED_FORMAT_VERSION, PASS_THRESHOLD, AUDIT_TYPE_COPY,
-} from '../report-result.js';
+} from '../../report-result.js';
 
 // ── fixtures ────────────────────────────────────────────────────────────────
 

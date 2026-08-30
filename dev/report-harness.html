@@ -11,9 +11,9 @@
     without a network call, a Supabase client, or a published audit.
     Never linked from the site and excluded from the sitemap.
   -->
-  <link rel="stylesheet" href="tokens.css">
-  <link rel="stylesheet" href="base.css">
-  <link rel="stylesheet" href="report.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="../base.css">
+  <link rel="stylesheet" href="../report.css">
   <style>
     body { padding: 24px; }
     .harness-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
@@ -32,8 +32,8 @@
   <div id="report-root"></div>
 
   <script type="module">
-    import { interpretReport } from './report-result.js';
-    import { renderNotFound, renderUnsupported, renderReport } from './report-render.js';
+    import { interpretReport } from '../report-result.js';
+    import { renderNotFound, renderUnsupported, renderReport } from '../report-render.js';
 
     const root = document.getElementById('harness-state').nextElementSibling;
 
