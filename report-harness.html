@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Report harness</title>
+  <!--
+    Local verification only. Drives the real report-result.js and
+    report-render.js with hand-built rows so every report state can be seen
+    without a network call, a Supabase client, or a published audit.
+    Never linked from the site and excluded from the sitemap.
+  -->
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="report.css">
+  <style>
+    body { padding: 24px; }
+    .harness-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+    .harness-bar button {
+      padding: 7px 12px; font-size: 12px; cursor: pointer;
+      background: transparent; color: var(--report-dim);
+      border: 1px solid var(--report-border); border-radius: 3px;
+    }
+    .harness-bar button[aria-pressed="true"] { color: var(--report-gold); border-color: var(--report-gold); }
+    #harness-state { font-family: monospace; font-size: 11px; color: var(--report-dim); margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="harness-bar" id="harness-bar"></div>
+  <div id="harness-state"></div>
+  <div id="report-root"></div>
+
+  <script type="module">
+    import { interpretReport } from './report-result.js';
+    import { renderNotFound, renderUnsupported, renderReport } from './report-render.js';
+
+    const root = document.getElementById('harness-state').nextElementSibling;
+
+    const payload = (over = {}) => ({
+      formatVersion: 1,
+      publishedAt: '2026-09-14T10:22:41.108Z',
+      auditedOn: '2026-09-12',
+      auditType: 'full',
+      property: { name: 'Hotel Borealis', city: 'Reykjavik', country: 'Iceland', category: '5★' },
+      score: { percent: 92, itemsMet: 110, itemsGraded: 120 },
+      standardMet: true,
+      summary: 'A calm, well run house with a genuinely warm arrival.',
+      sections: [
+        { id: 'pre', label: 'Pre-Arrival & Website', total: 12, met: 11, partial: 1, missed: 0, na: 0 },
+        { id: 'room', label: 'Room Quality', total: 9, met: 8, partial: 1, missed: 0, na: 0 },
+        { id: 'facilities', label: 'Facilities', total: 6, met: 5, partial: 0, missed: 1, na: 0 },
+        { id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 3, partial: 0, missed: 0, na: 0 },
+        { id: 'spa', label: 'Spa & Wellness', total: 11, met: 10, partial: 1, missed: 0, na: 0 },
+      ],
+      criticalFailures: [],
+      basis: { state: 'frozen', recordedOn: '2026-09-12T08:14:00.000Z' },
+      ...over,
+    });
+
+    const row = (over = {}) => ({
+      id: 'a1', ref: 'AHP-2026-DEMO', date: '2026-09-12', status: 'published', tier: 'full',
+      auditor_summary: 'LIVE SUMMARY, MUST NOT APPEAR ON A FROZEN REPORT',
+      critical_failures: [{ itemId: 'LIVE-01', label: 'LIVE FAILURE, MUST NOT APPEAR' }],
+      properties: { name: 'LIVE NAME, MUST NOT APPEAR', city: 'Nowhere', country: 'Nowhere', category: '4★' },
+      published_result: payload(),
+      ...over,
+    });
+
+    const liveItems = [
+      { item_id: 'RM-01', section_id: 'room', status: 'missed' },
+      { item_id: 'RM-02', section_id: 'room', status: 'missed' },
+    ];
+
+    const CASES = {
+      'A · full, frozen, passing': () => [row(), []],
+      'B · property changed since': () => [row({
+        properties: { name: 'Renamed Hotel', city: 'Akureyri', country: 'Norway', category: '4★' },
+      }), []],
+      'C · items changed since': () => [row(), liveItems],
+      'D · spot, passing, no Mark': () => [row({ published_result: payload({ auditType: 'spot' }) }), []],
+      'E · full, failing': () => [row({
+        published_result: payload({
+          standardMet: false,
+          score: { percent: 58, itemsMet: 47, itemsGraded: 81 },
+          criticalFailures: [
+            { itemId: 'RM-02', label: 'No hair, stains, or odors', note: 'Bathroom, room 402.' },
+          ],
+        }),
+      }), []],
+      'F · desk review': () => [row({ published_result: payload({ auditType: 'desk' }) }), []],
+      'G · legacy, null payload': () => [row({
+        published_result: null,
+        properties: { name: 'Hotel Borealis', city: 'Reykjavik', country: 'Iceland', category: '5★' },
+        critical_failures: [{ itemId: 'RM-02', label: 'No hair, stains, or odors' }],
+      }), [
+        { item_id: 'RM-01', section_id: 'room', status: 'met' },
+        { item_id: 'RM-02', section_id: 'room', status: 'missed' },
+        { item_id: 'FAC-01', section_id: 'facilities', status: 'met' },
+        { item_id: 'SAF-01', section_id: 'safety', status: 'met' },
+      ]],
+      'H · malformed payload': () => [row({ published_result: { nope: true } }), liveItems],
+      'I · unknown formatVersion': () => [row({ published_result: payload({ formatVersion: 2 }) }), liveItems],
+      'J · incomplete basis': () => [row({
+        published_result: payload({ basis: { state: 'incomplete', recordedOn: null } }),
+      }), []],
+    };
+
+    const bar = document.getElementById('harness-bar');
+    const state = document.getElementById('harness-state');
+
+    function show(name) {
+      const [auditRow, items] = CASES[name]();
+      const result = interpretReport(auditRow, items);
+      window.__harness = result;
+      state.textContent = `${name}  →  mode=${result.mode}`
+        + (result.reason ? ` reason=${result.reason}` : '')
+        + (result.view ? ` showMark=${result.view.showMark} score=${result.view.score.percent} sections=${result.view.sections.length}` : '');
+      if (result.mode === 'unavailable') {
+        if (result.reason === 'not-found') renderNotFound(root); else renderUnsupported(root);
+      } else {
+        renderReport(root, result.view);
+      }
+      [...bar.children].forEach(b => b.setAttribute('aria-pressed', String(b.textContent === name)));
+    }
+
+    Object.keys(CASES).forEach(name => {
+      const b = document.createElement('button');
+      b.textContent = name;
+      b.onclick = () => show(name);
+      bar.appendChild(b);
+    });
+    window.__show = show;
+    show('A · full, frozen, passing');
+  </script>
+</body>
+</html>

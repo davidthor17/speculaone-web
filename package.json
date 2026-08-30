@@ -1,0 +1,9 @@
+{
+  "name": "speculaone-web",
+  "private": true,
+  "type": "module",
+  "description": "Static site. This exists only so node --test can run the pure report logic; nothing here is bundled or shipped.",
+  "scripts": {
+    "test": "node --test \"test/**/*.js\""
+  }
+}
