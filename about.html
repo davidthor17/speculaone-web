@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Marketing domain self-healing. Phase 5.8. See index.html for the reasoning.
+     A stale service worker from a historical deployment of the audit console on
+     this hostname would keep serving its cached app shell here. -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+  }
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+</script>
 <title>About Specula | Founded by Davíð Þór Elvarsson</title>
 <meta name="description" content="Specula was founded by Davíð Þór Elvarsson, drawing on years in luxury hospitality from Host to Butler at The Retreat at Blue Lagoon." />
 <link rel="canonical" href="https://www.speculaone.com/about.html" />

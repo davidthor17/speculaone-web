@@ -200,3 +200,68 @@ test('the exclusion is doing real work, and this test is not vacuous', () => {
     assert.ok(excluded.includes(f), `${f} must be among the excluded`);
   }
 });
+
+// ── the marketing domain must never serve the audit console ─────────────────
+//
+// Phase 5.8 P0. Visiting speculaone.com in a normal browser could land on the
+// AHP console, while a private window reliably showed the marketing site. The
+// server side is clean: apex redirects to www, www/sw.js is 404, no page here
+// registers a worker, and Vercel maps the two projects to separate hostnames.
+// A service worker outlives the deployment that installed it, though, so a
+// historical deployment of the console on this hostname would leave one still
+// controlling this origin and still serving its cached app shell.
+//
+// report.html already carried the unregister block. These tests are what stop
+// the other entry pages from being left out of it again.
+
+const ENTRY_PAGES = ['index.html', 'about.html', 'report.html'];
+
+test('every marketing entry page clears stale service workers and caches', () => {
+  for (const page of ENTRY_PAGES) {
+    const html = read(page);
+    assert.match(html, /navigator\.serviceWorker\.getRegistrations\(\)/,
+      `${page} does not unregister stale service workers`);
+    assert.match(html, /r\.unregister\(\)/, `${page} looks up registrations without unregistering them`);
+    assert.match(html, /caches\.keys\(\)/, `${page} does not clear stale caches`);
+    assert.match(html, /caches\.delete\(/, `${page} lists caches without deleting them`);
+  }
+});
+
+test('the guard runs from the head, before the page renders', () => {
+  // Late in the body it would still unregister, but only after the stale
+  // worker had already answered the navigation.
+  for (const page of ENTRY_PAGES) {
+    const html = read(page);
+    const head = html.slice(0, html.indexOf('</head>'));
+    assert.ok(head.includes('navigator.serviceWorker.getRegistrations()'),
+      `${page} has the guard outside its <head>`);
+  }
+});
+
+test('the marketing site never registers a service worker of its own', () => {
+  // The console is a PWA. This site is not, and must not become one by
+  // accident: registering here is what created the problem in the first place.
+  for (const page of ENTRY_PAGES) {
+    const html = read(page);
+    assert.equal(/serviceWorker\s*\.\s*register\s*\(/.test(html), false,
+      `${page} registers a service worker`);
+  }
+});
+
+test('no marketing page redirects to the audit console', () => {
+  // There is no cross-domain redirect today and there must not be one: a
+  // visitor to the marketing domain should always see the marketing site.
+  for (const page of ENTRY_PAGES) {
+    const html = read(page);
+    assert.equal(/location\s*(\.href|\.replace|\.assign)?\s*=?\s*[('"]*https?:\/\/audit\./.test(html), false,
+      `${page} sends visitors to the audit console`);
+  }
+});
+
+test('vercel.json declares no redirects or rewrites at all', () => {
+  // The separation is by hostname in Vercel. A redirect rule added here would
+  // be the one mechanism that could legitimately cross the domains.
+  const cfg = JSON.parse(read('vercel.json'));
+  assert.equal('redirects' in cfg, false, 'vercel.json has gained a redirects block');
+  assert.equal('rewrites' in cfg, false, 'vercel.json has gained a rewrites block');
+});

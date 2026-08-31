@@ -3,6 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Marketing domain self-healing. Phase 5.8.
+     The audit console is a PWA and registers a service worker at its own
+     origin. Nothing on this domain registers one, and nothing should. A worker
+     left behind by a historical deployment of the console on this hostname
+     would go on serving its cached app shell here, showing a visitor the audit
+     console instead of the marketing site, and it would outlive the deployment
+     that installed it. The domains are already separate in Vercel, so this
+     clears client state that should no longer exist rather than compensating
+     for a routing problem. Same block already proven on report.html. -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+  }
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+</script>
 <title>Specula | Independent Hotel Assessment &amp; Certification</title>
 <meta name="description" content="Independent, anonymous hotel assessments that help hotels understand the real guest experience, recognise what they do well and find meaningful ways to improve." />
 <link rel="canonical" href="https://www.speculaone.com/" />
