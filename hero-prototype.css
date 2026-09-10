@@ -148,7 +148,7 @@ body.menu-open { overflow: hidden; }
   transition: color 0.2s ease;
 }
 .mobile-menu-links a:hover,
-.mobile-menu-links a.active { color: var(--bronze); }
+.mobile-menu-links a.active { color: var(--bronze-deep); }
 
 /* ---------- hero ---------- */
 
