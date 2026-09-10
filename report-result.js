@@ -17,8 +17,39 @@
 // nothing at all rather than quietly recomputing a different number and
 // presenting it as the published one.
 
-export const SUPPORTED_FORMAT_VERSION = 1;
+// Version 1 is every report published before Phase 6.8 and keeps its original
+// meaning forever. Version 2 is version 1 plus an optional `intelligence`
+// block. Anything else fails closed, exactly as an unknown version always has:
+// a report this reader cannot fully understand is not a report it may guess at.
+export const SUPPORTED_FORMAT_VERSIONS = [1, 2];
 export const PASS_THRESHOLD = 85;
+
+// The public vocabularies the payload speaks. Written out here as well as in
+// the console, on purpose: the two implementations are checked against each
+// other by fixtures rather than shared by an import, because a reader that
+// trusts what it is given is how a malformed payload becomes a wrong public
+// claim.
+//
+// Three levels of priority, and deliberately not the word "critical". This page
+// already reserves that for a failure the auditor flagged by hand, under Key
+// Findings, and a framework severity is a different judgment about a different
+// thing. One word for both would let a report say "no critical findings
+// recorded" directly above a list of critical findings.
+export const PUBLIC_SEVERITIES = ['high', 'moderate', 'low'];
+export const PUBLIC_PATTERN_TYPES = ['recurring', 'inconsistent', 'cross_area'];
+
+// What each pattern type is called on the page. The payload carries the token,
+// never the wording, so this copy can be improved without touching a single
+// published document.
+export const PATTERN_TYPE_LABEL = {
+  recurring: 'Recurring issue',
+  inconsistent: 'Inconsistent delivery',
+  cross_area: 'Across multiple areas',
+};
+
+export const INTELLIGENCE_LIMITS = {
+  priorities: 5, patterns: 5, strengths: 3, sectionsToWatch: 5,
+};
 
 // Full Audits alone carry the Specula Mark. A Spot Audit that meets the
 // standard is "Reviewed by Specula" and shows no Mark; a Desk Review carries no
@@ -119,7 +150,7 @@ export function validatePayload(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     return ['payload is not an object'];
   }
-  if (payload.formatVersion !== SUPPORTED_FORMAT_VERSION) {
+  if (!SUPPORTED_FORMAT_VERSIONS.includes(payload.formatVersion)) {
     bad(`unsupported formatVersion: ${JSON.stringify(payload.formatVersion)}`);
   }
   if (!AUDIT_TYPES.includes(payload.auditType)) bad('unknown auditType');
@@ -158,6 +189,93 @@ export function validatePayload(payload) {
   else if (b.state === 'frozen' && !b.recordedOn) bad('frozen basis has no date');
 
   return errors;
+}
+
+// ── The intelligence block (version 2) ──────────────────────────────────────
+//
+// Phase 6.8. Deliberately validated apart from the payload above, because the
+// two must fail differently. The base fields are load-bearing: without them
+// there is no report, so they fail closed and the page says it cannot show one.
+// This block is an enhancement to a report that is already renderable, so a
+// block that cannot be trusted is dropped and the base report is shown instead.
+// Taking a whole published report offline because a supplementary list was
+// malformed would be a worse outcome than the one being avoided.
+//
+// Nothing here recomputes anything. A section this reader would have called a
+// strength on its own is not compared against the published one, and the
+// published one always wins: it was decided by the audit console, at
+// publication, from data this repository has never had access to.
+
+/** @returns {string[]} every problem found, empty when the block can be trusted */
+export function validateIntelligence(intel) {
+  const errors = [];
+  const bad = (m) => errors.push(m);
+
+  if (!intel || typeof intel !== 'object' || Array.isArray(intel)) return ['intelligence is not an object'];
+  if (typeof intel.headline !== 'string' || !intel.headline) bad('headline missing');
+  if (!intel.summary || typeof intel.summary !== 'object') bad('summary missing');
+  else if (typeof intel.summary.overallPerformance !== 'string') bad('summary.overallPerformance invalid');
+
+  const km = intel.keyMetrics;
+  if (!km || typeof km !== 'object') bad('keyMetrics missing');
+  else {
+    for (const k of ['urgentIssueCount', 'priorityCount', 'patternCount', 'strengthCount']) {
+      if (!Number.isFinite(km[k])) bad(`keyMetrics.${k} invalid`);
+    }
+    // Neither is part of the contract. coverage is a fact about the assessment
+    // rather than the hotel; overallScore is the framework's weighted result,
+    // which is not the figure this page prints and would contradict it.
+    if ('coverage' in km) bad('keyMetrics.coverage is not part of this contract');
+    if ('overallScore' in km) bad('keyMetrics.overallScore is not part of this contract');
+  }
+
+  const list = (key, check) => {
+    if (!Array.isArray(intel[key])) { bad(`${key} missing`); return; }
+    if (intel[key].length > INTELLIGENCE_LIMITS[key]) bad(`${key} is longer than the contract allows`);
+    intel[key].forEach((row, i) => {
+      if (!row || typeof row !== 'object') { bad(`${key}[${i}] invalid`); return; }
+      const problem = check(row);
+      if (problem) bad(`${key}[${i}].${problem}`);
+    });
+  };
+
+  list('priorities', (p) => {
+    if (!PUBLIC_SEVERITIES.includes(p.severity)) return 'severity unknown';
+    if (!p.title) return 'title missing';
+    if (!p.reason) return 'reason missing';
+    return null;
+  });
+  list('patterns', (p) => {
+    if (!PUBLIC_PATTERN_TYPES.includes(p.type)) return 'type unknown';
+    if (!PUBLIC_SEVERITIES.includes(p.severity)) return 'severity unknown';
+    if (!p.explanation) return 'explanation missing';
+    return null;
+  });
+  list('strengths', (s) => {
+    if (!s.title) return 'title missing';
+    if (!s.reason) return 'reason missing';
+    return null;
+  });
+  list('sectionsToWatch', (s) => {
+    if (!s.sectionLabel) return 'sectionLabel missing';
+    if (!PUBLIC_SEVERITIES.includes(s.severity)) return 'severity unknown';
+    return null;
+  });
+
+  return errors;
+}
+
+/**
+ * The block this payload may be rendered with, or null.
+ *
+ * Null for a version 1 document, which has none and never will; null for a
+ * version 2 document that carries none, which is a complete document in its own
+ * right; and null for a block that does not validate, which is the degrade.
+ */
+export function readIntelligence(payload) {
+  if (!payload || payload.formatVersion !== 2) return null;
+  if (!('intelligence' in payload)) return null;
+  return validateIntelligence(payload.intelligence).length ? null : payload.intelligence;
 }
 
 /**
@@ -355,6 +473,13 @@ function view(source, parts) {
   const { auditType, standardMet } = parts;
   const sections = parts.sections || [];
   const criticalFailures = parts.criticalFailures || [];
+  // Phase 6.8. When the payload carries the audit console's own reading of
+  // this audit, that reading is the published one and it wins outright. The
+  // headline and the two section-level lists below were built here only
+  // because, until now, this repository had nothing better to build them from.
+  // Showing both would put a coarse stand-in beside the real thing and invite
+  // the reader to notice they disagree.
+  const intelligence = parts.intelligence || null;
   return {
     source,
     ref: parts.ref || null,
@@ -367,15 +492,16 @@ function view(source, parts) {
     criticalFailures,
     summary: parts.summary || null,
     disclosure: disclosureFor(parts.basis),
-    headline: buildHeadline({
+    headline: (intelligence && intelligence.headline) || buildHeadline({
       percent: parts.score ? parts.score.percent : null,
       standardMet,
       criticalFailureCount: criticalFailures.length,
       isDesk: auditType === 'desk',
     }),
     totals: performanceTotals(sections),
-    strengths: strongSections(sections),
-    attention: attentionSections(sections),
+    strengths: intelligence ? [] : strongSections(sections),
+    attention: intelligence ? [] : attentionSections(sections),
+    intelligence,
     methodology: methodologyNotes(auditType),
     ...markFor(auditType, standardMet),
   };
@@ -440,6 +566,7 @@ export function interpretReport(auditRow, items = []) {
       criticalFailures: payload.criticalFailures,
       summary: payload.summary || null,
       basis: payload.basis,
+      intelligence: readIntelligence(payload),
     }),
   };
 }

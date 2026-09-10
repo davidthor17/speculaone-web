@@ -5,6 +5,8 @@
 // decides, this paints. Nothing here decides anything, which is why it can be
 // trusted to render a frozen payload without quietly consulting live data.
 
+import { PATTERN_TYPE_LABEL } from './report-result.js';
+
 // Supabase-sourced text is rendered via innerHTML below, so it has to be
 // escaped here rather than trusted as markup.
 function escapeHtml(value) {
@@ -111,9 +113,55 @@ export function renderReport(root, view) {
       `).join('')
     : `<p class="report-empty-sub">No critical findings recorded during this audit.</p>`;
 
+  // Phase 6.8. The audit console's own reading of this audit, frozen into the
+  // payload at publication. Every string here was written there; nothing on
+  // this page decides which findings matter or how severe they are, and
+  // nothing recomputes any of it. Each block renders only when the payload
+  // actually carries something for it, so an audit with no findings shows no
+  // empty headings.
+  const intel = view.intelligence;
+
+  const intelPrioritiesBlock = intel && intel.priorities.length ? `
+    <div class="report-block">
+      <p class="section-eyebrow">Areas for Attention</p>
+      ${intel.priorities.map(p => `
+        <div class="report-insight report-insight-${escapeHtml(p.severity)}">
+          <p class="report-insight-title">${escapeHtml(p.title)}</p>
+          <p class="report-insight-text">${escapeHtml(p.reason)}</p>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const intelPatternsBlock = intel && intel.patterns.length ? `
+    <div class="report-block">
+      <p class="section-eyebrow">Operational Patterns</p>
+      ${intel.patterns.map(p => `
+        <div class="report-insight">
+          <p class="report-insight-title">${escapeHtml(PATTERN_TYPE_LABEL[p.type] || 'Pattern')}</p>
+          <p class="report-insight-text">${escapeHtml(p.explanation)}</p>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const intelStrengthsBlock = intel && intel.strengths.length ? `
+    <div class="report-block">
+      <p class="section-eyebrow">Key Strengths</p>
+      ${intel.strengths.map(s => `
+        <div class="report-insight report-insight-positive">
+          <p class="report-insight-title">${escapeHtml(s.title)}</p>
+          <p class="report-insight-text">${escapeHtml(s.reason)}</p>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
   // Sections assessed cleanly enough, and sections worth a second look. Both
   // are supplementary reads on the same section data above, so neither
-  // renders at all when there is nothing genuine to say.
+  // renders at all when there is nothing genuine to say. On a payload that
+  // carries real intelligence, report-result.js empties both: they exist only
+  // as stand-ins for the blocks above.
   const strengthsBlock = view.strengths.length ? `
     <div class="report-block">
       <p class="section-eyebrow">Key Strengths</p>
@@ -194,6 +242,7 @@ export function renderReport(root, view) {
     ${statusBlock}
 
     ${strengthsBlock}
+    ${intelStrengthsBlock}
 
     <div class="report-block">
       <p class="section-eyebrow">Key Findings</p>
@@ -201,6 +250,8 @@ export function renderReport(root, view) {
     </div>
 
     ${attentionBlock}
+    ${intelPrioritiesBlock}
+    ${intelPatternsBlock}
 
     <div class="report-block">
       <p class="section-eyebrow">Section Performance</p>

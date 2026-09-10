@@ -167,6 +167,34 @@
 .report-list-positive li::before { background: #4DC87A; }
 .report-list-attention li::before { background: #E05555; }
 
+/* Phase 6.8. A published priority, pattern or strength: a title and one line
+   explaining it, both written by the audit console and frozen at publication.
+   Quieter than the critical failure treatment above, which stays the loudest
+   thing on the page, and a left rule rather than a filled panel so a report
+   carrying five of them still reads as a document. */
+.report-insight {
+  padding: 12px 0 12px 16px;
+  border-left: 2px solid var(--report-border);
+  margin-bottom: 12px;
+}
+.report-insight:last-child { margin-bottom: 0; }
+.report-insight-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--report-text);
+  margin: 0 0 4px;
+}
+.report-insight-text {
+  font-size: 13px;
+  color: var(--report-dim);
+  line-height: 1.65;
+  max-width: 62ch;
+  margin: 0;
+}
+.report-insight-high { border-left-color: #E05555; }
+.report-insight-moderate { border-left-color: #F5A623; }
+.report-insight-positive { border-left-color: #4DC87A; }
+
 .report-methodology { margin-top: 8px; }
 .report-methodology-item { margin-bottom: 16px; }
 .report-methodology-item:last-child { margin-bottom: 0; }
@@ -194,7 +222,7 @@
    page edge. */
 @media print {
   .report-executive, .report-score, .report-mark-block, .report-nomark-block,
-  .report-glance, .report-block, .report-methodology-item {
+  .report-glance, .report-block, .report-methodology-item, .report-insight {
     break-inside: avoid;
   }
 }

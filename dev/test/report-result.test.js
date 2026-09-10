@@ -12,9 +12,11 @@ import {
   interpretReport, validatePayload, coercePayload, disclosureFor,
   resolveLegacyBasis, recomputeFromItems, worstStatusByItem,
   formatBasisDate, SECTION_LABELS, SECTION_ORDER,
-  SUPPORTED_FORMAT_VERSION, PASS_THRESHOLD, AUDIT_TYPE_COPY,
+  SUPPORTED_FORMAT_VERSIONS, PASS_THRESHOLD, AUDIT_TYPE_COPY,
   performanceBand, buildHeadline, performanceTotals, strongSections,
   attentionSections, methodologyNotes,
+  validateIntelligence, readIntelligence, PATTERN_TYPE_LABEL,
+  PUBLIC_SEVERITIES, PUBLIC_PATTERN_TYPES, INTELLIGENCE_LIMITS,
 } from '../../report-result.js';
 
 // ── fixtures ────────────────────────────────────────────────────────────────
@@ -136,7 +138,7 @@ const BROKEN = [
   ['an empty string', ''],
   ['an array', []],
   ['a number', 42],
-  ['unknown formatVersion 2', payload({ formatVersion: 2 })],
+  ['unknown formatVersion 3', payload({ formatVersion: 3 })],
   ['unknown formatVersion 0', payload({ formatVersion: 0 })],
   ['missing formatVersion', payload({ formatVersion: undefined })],
   ['missing property', payload({ property: undefined })],
@@ -387,8 +389,8 @@ test('formatBasisDate refuses to invent a date', () => {
   assert.equal(formatBasisDate('2026-09-12T08:14:00.000Z'), '12 September 2026');
 });
 
-test('the supported version and threshold are what the console believes', () => {
-  assert.equal(SUPPORTED_FORMAT_VERSION, 1);
+test('the supported versions and threshold are what the console believes', () => {
+  assert.deepEqual(SUPPORTED_FORMAT_VERSIONS, [1, 2]);
   assert.equal(PASS_THRESHOLD, 85);
 });
 

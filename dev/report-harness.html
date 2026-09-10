@@ -67,6 +67,50 @@
       ...over,
     });
 
+    // The Phase 6.8 block, exactly as buildPublishedResult() emits it.
+    const INTEL = () => ({
+      headline: 'Mixed overall performance, with 2 high priority issues to address.',
+      summary: {
+        overallPerformance: 'Mixed',
+        primaryConcern: 'High priority: No hair, stains, or odors',
+        operationalPattern: '3 related failures recorded within Room Quality.',
+        positiveSignal: 'Consistently strong performance in Pre-Arrival & Website',
+      },
+      keyMetrics: {
+        urgentIssueCount: 2, priorityCount: 5, patternCount: 3,
+        strengthCount: 1, notAssessedCount: 0, notAvailableCount: 0,
+      },
+      priorities: [
+        { rank: 1, severity: 'high', title: 'High priority: No hair, stains, or odors', reason: 'Recorded in Room Quality as Missed. Ranked high priority.', findingCount: 1, sectionIds: ['room'], affectedSections: ['Room Quality'] },
+        { rank: 2, severity: 'high', title: 'High priority: Emergency exits, fire safety equipment and evacuation information present, unobstructed and current', reason: 'Recorded in Safety, Security & Integrity as Missed. Ranked high priority.', findingCount: 1, sectionIds: ['safety'], affectedSections: ['Safety, Security & Integrity'] },
+        { rank: 3, severity: 'moderate', title: 'Moderate priority: Exterior clean and well-maintained', reason: 'Recorded in Arrival & Entrance as Missed. Ranked moderate priority.', findingCount: 1, sectionIds: ['arrival'], affectedSections: ['Arrival & Entrance'] },
+        { rank: 4, severity: 'moderate', title: 'Moderate priority: All lights and technology functioning', reason: 'Recorded in Room Quality as Missed. Ranked moderate priority.', findingCount: 1, sectionIds: ['room'], affectedSections: ['Room Quality'] },
+        { rank: 5, severity: 'low', title: 'Low priority: Noise levels acceptable', reason: 'Recorded in Room Quality as Partial. Ranked low priority.', findingCount: 1, sectionIds: ['room'], affectedSections: ['Room Quality'] },
+      ],
+      urgentIssueCount: 2,
+      improvementCount: 3,
+      patterns: [
+        { type: 'recurring', severity: 'high', explanation: '3 related failures recorded within Room Quality.', sectionIds: ['room'] },
+        { type: 'inconsistent', severity: 'high', explanation: 'Performance varies significantly within Room Quality, suggesting an inconsistent guest experience rather than a uniformly weak one.', sectionIds: ['room'] },
+        { type: 'cross_area', severity: 'high', explanation: 'Condition-related findings appear across 3 areas of the stay.', sectionIds: ['arrival', 'room', 'safety'] },
+      ],
+      strengths: [
+        { sectionId: 'pre', title: 'Consistently strong performance in Pre-Arrival & Website', reason: '4 of 4 assessed items met the standard in Pre-Arrival & Website, with no missed or partial items.', assessedCount: 4 },
+      ],
+      sectionsToWatch: [
+        { sectionId: 'room', sectionLabel: 'Room Quality', severity: 'high', findingCount: 3 },
+        { sectionId: 'safety', sectionLabel: 'Safety, Security & Integrity', severity: 'high', findingCount: 1 },
+      ],
+    });
+
+    const v2 = (over = {}) => payload({
+      formatVersion: 2,
+      score: { percent: 68, itemsMet: 13, itemsGraded: 19 },
+      standardMet: false,
+      intelligence: INTEL(),
+      ...over,
+    });
+
     const liveItems = [
       { item_id: 'RM-01', section_id: 'room', status: 'missed' },
       { item_id: 'RM-02', section_id: 'room', status: 'missed' },
@@ -100,7 +144,7 @@
         { item_id: 'SAF-01', section_id: 'safety', status: 'met' },
       ]],
       'H · malformed payload': () => [row({ published_result: { nope: true } }), liveItems],
-      'I · unknown formatVersion': () => [row({ published_result: payload({ formatVersion: 2 }) }), liveItems],
+      'I · unknown formatVersion': () => [row({ published_result: payload({ formatVersion: 3 }) }), liveItems],
       'K · strong audit, multiple strengths, no findings': () => [row({
         published_result: payload({
           score: { percent: 98, itemsMet: 44, itemsGraded: 45 },
@@ -133,6 +177,13 @@
       'J · incomplete basis': () => [row({
         published_result: payload({ basis: { state: 'incomplete', recordedOn: null } }),
       }), []],
+      // Phase 6.8. Transcribed from what the audit console actually emits, so
+      // the harness shows the real block rather than an idealised one.
+      'P · v2, published intelligence': () => [row({ published_result: v2() }), liveItems],
+      'Q · v2, no intelligence block': () => [row({ published_result: payload({ formatVersion: 2 }) }), liveItems],
+      'R · v2, malformed intelligence': () => [row({
+        published_result: v2({ intelligence: { headline: '', priorities: 'many' } }),
+      }), liveItems],
     };
 
     const bar = document.getElementById('harness-bar');
