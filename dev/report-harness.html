@@ -101,6 +101,35 @@
       ]],
       'H · malformed payload': () => [row({ published_result: { nope: true } }), liveItems],
       'I · unknown formatVersion': () => [row({ published_result: payload({ formatVersion: 2 }) }), liveItems],
+      'K · strong audit, multiple strengths, no findings': () => [row({
+        published_result: payload({
+          score: { percent: 98, itemsMet: 44, itemsGraded: 45 },
+          criticalFailures: [],
+          sections: [
+            { id: 'pre', label: 'Pre-Arrival & Website', total: 12, met: 12, partial: 0, missed: 0, na: 0 },
+            { id: 'arrival', label: 'Arrival & Entrance', total: 9, met: 9, partial: 0, missed: 0, na: 0 },
+            { id: 'room', label: 'Room Quality', total: 9, met: 8, partial: 1, missed: 0, na: 0 },
+            { id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 3, partial: 0, missed: 0, na: 0 },
+            { id: 'breakfast', label: 'Breakfast', total: 12, met: 12, partial: 0, missed: 0, na: 0 },
+          ],
+        }),
+      }), []],
+      'L · mixed audit, several attention sections': () => [row({
+        published_result: payload({
+          standardMet: false,
+          score: { percent: 63, itemsMet: 25, itemsGraded: 40 },
+          criticalFailures: [
+            { itemId: 'SAF-01', label: 'Emergency exits, fire safety equipment', note: 'Corridor exit sign not illuminated.' },
+          ],
+          sections: [
+            { id: 'pre', label: 'Pre-Arrival & Website', total: 12, met: 12, partial: 0, missed: 0, na: 0 },
+            { id: 'room', label: 'Room Quality', total: 9, met: 5, partial: 1, missed: 3, na: 0 },
+            { id: 'facilities', label: 'Facilities', total: 6, met: 3, partial: 1, missed: 2, na: 0 },
+            { id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 2, partial: 0, missed: 1, na: 0 },
+            { id: 'spa', label: 'Spa & Wellness', total: 10, met: 3, partial: 1, missed: 1, na: 5 },
+          ],
+        }),
+      }), []],
       'J · incomplete basis': () => [row({
         published_result: payload({ basis: { state: 'incomplete', recordedOn: null } }),
       }), []],

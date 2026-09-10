@@ -13,6 +13,8 @@ import {
   resolveLegacyBasis, recomputeFromItems, worstStatusByItem,
   formatBasisDate, SECTION_LABELS, SECTION_ORDER,
   SUPPORTED_FORMAT_VERSION, PASS_THRESHOLD, AUDIT_TYPE_COPY,
+  performanceBand, buildHeadline, performanceTotals, strongSections,
+  attentionSections, methodologyNotes,
 } from '../../report-result.js';
 
 // ── fixtures ────────────────────────────────────────────────────────────────
@@ -394,4 +396,162 @@ test('validatePayload accepts a well formed payload and reports every fault othe
   assert.deepEqual(validatePayload(payload()), []);
   const errors = validatePayload({ formatVersion: 7, auditType: 'x' });
   assert.ok(errors.length >= 4);
+});
+
+// ── Phase 6.7B: the premium client report additions ─────────────────────────
+//
+// Everything below is derived only from score, sections and criticalFailures,
+// the fields interpretReport() already reads. Nothing here reaches a new
+// column, and nothing claims a severity or pattern this repository was never
+// given.
+
+const section = (over = {}) => ({
+  id: 'room', label: 'Room Quality', total: 5, met: 5, partial: 0, missed: 0, na: 0, ...over,
+});
+
+test('performanceBand: the four bands, and null for nothing scored', () => {
+  assert.equal(performanceBand(95), 'strong');
+  assert.equal(performanceBand(90), 'strong');
+  assert.equal(performanceBand(89), 'good');
+  assert.equal(performanceBand(75), 'good');
+  assert.equal(performanceBand(74), 'mixed');
+  assert.equal(performanceBand(50), 'mixed');
+  assert.equal(performanceBand(49), 'attention');
+  assert.equal(performanceBand(null), null);
+  assert.equal(performanceBand(undefined), null);
+});
+
+test('buildHeadline: a critical failure always outranks the score', () => {
+  const headline = buildHeadline({ percent: 96, standardMet: false, criticalFailureCount: 1, isDesk: false });
+  assert.match(headline, /Strong overall performance, with 1 critical finding requiring attention\./);
+  assert.doesNotMatch(headline, /consistently strong/i);
+});
+
+test('buildHeadline: pluralises more than one critical finding', () => {
+  const headline = buildHeadline({ percent: 80, standardMet: false, criticalFailureCount: 3, isDesk: false });
+  assert.match(headline, /3 critical findings requiring attention\./);
+});
+
+test('buildHeadline: a clean, strong, standard-meeting audit gets the warmest honest line', () => {
+  const headline = buildHeadline({ percent: 96, standardMet: true, criticalFailureCount: 0, isDesk: false });
+  assert.equal(headline, 'A consistently strong guest experience across this stay.');
+});
+
+test('buildHeadline: meeting the standard without being in the strong band is stated plainly', () => {
+  const headline = buildHeadline({ percent: 86, standardMet: true, criticalFailureCount: 0, isDesk: false });
+  assert.equal(headline, 'Good overall performance, meeting the Specula standard.');
+});
+
+test('buildHeadline: not meeting the standard, with no critical failure, is still plain, not alarming', () => {
+  const headline = buildHeadline({ percent: 60, standardMet: false, criticalFailureCount: 0, isDesk: false });
+  assert.equal(headline, 'Mixed overall performance.');
+});
+
+test('buildHeadline: a Desk Review never claims a standard was met or missed', () => {
+  const headline = buildHeadline({ percent: 92, standardMet: false, criticalFailureCount: 0, isDesk: true });
+  assert.equal(headline, 'Strong overall performance.');
+});
+
+test('buildHeadline: an unscored audit says so, not "Requires attention"', () => {
+  assert.equal(
+    buildHeadline({ percent: null, standardMet: false, criticalFailureCount: 0, isDesk: false }),
+    'This assessment has not yet been scored.',
+  );
+});
+
+test('performanceTotals: summed across every published section, nothing recomputed', () => {
+  const totals = performanceTotals([
+    section({ total: 10, met: 8, partial: 1, missed: 1, na: 0 }),
+    section({ id: 'spa', label: 'Spa & Wellness', total: 6, met: 4, partial: 0, missed: 0, na: 2 }),
+  ]);
+  assert.deepEqual(totals, { total: 16, met: 12, partial: 1, missed: 1, na: 2 });
+});
+
+test('performanceTotals: an empty report is safe', () => {
+  assert.deepEqual(performanceTotals([]), { total: 0, met: 0, partial: 0, missed: 0, na: 0 });
+  assert.deepEqual(performanceTotals(), { total: 0, met: 0, partial: 0, missed: 0, na: 0 });
+});
+
+test('strongSections: every item met, on a sample of at least three', () => {
+  const sections = [
+    section({ id: 'room', label: 'Room Quality', total: 5, met: 5 }),
+    section({ id: 'spa', label: 'Spa & Wellness', total: 8, met: 8 }),
+    section({ id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 2, missed: 1 }),
+  ];
+  const strengths = strongSections(sections);
+  assert.deepEqual(strengths.map((s) => s.id), ['spa', 'room'], 'largest genuine sample first');
+});
+
+test('strongSections: a one or two item sample is never a strength', () => {
+  const sections = [section({ id: 'safety', label: 'Safety, Security & Integrity', total: 2, met: 2 })];
+  assert.deepEqual(strongSections(sections), []);
+});
+
+test('strongSections: one missed item anywhere in the section disqualifies it', () => {
+  const sections = [section({ id: 'room', label: 'Room Quality', total: 9, met: 8, missed: 1 })];
+  assert.deepEqual(strongSections(sections), []);
+});
+
+test('attentionSections: only sections with a missed item, most affected first', () => {
+  const sections = [
+    section({ id: 'room', label: 'Room Quality', total: 9, met: 7, missed: 2 }),
+    section({ id: 'spa', label: 'Spa & Wellness', total: 8, met: 8, missed: 0 }),
+    section({ id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 2, missed: 1 }),
+  ];
+  const attention = attentionSections(sections);
+  assert.deepEqual(attention.map((s) => s.id), ['room', 'safety']);
+});
+
+test('methodologyNotes: mentions the Specula Mark for a scored audit type, never for a Desk Review', () => {
+  const full = methodologyNotes('full').map((n) => n.title);
+  const desk = methodologyNotes('desk').map((n) => n.title);
+  assert.ok(full.includes('The Specula Mark'));
+  assert.equal(desk.includes('The Specula Mark'), false);
+});
+
+test('no report copy anywhere in this module uses an em dash or a double dash', () => {
+  // CLAUDE.md, rule 2: permanent, no exceptions for report copy.
+  const strings = [
+    buildHeadline({ percent: 96, standardMet: false, criticalFailureCount: 2, isDesk: false }),
+    buildHeadline({ percent: 96, standardMet: true, criticalFailureCount: 0, isDesk: false }),
+    ...methodologyNotes('full').map((n) => n.text),
+    ...methodologyNotes('desk').map((n) => n.text),
+  ];
+  for (const s of strings) {
+    assert.equal(/—|--/.test(s), false, `"${s}" contains an em dash or double dash`);
+  }
+});
+
+test('view(): the payload branch carries headline, totals, strengths, attention and methodology', () => {
+  const r = interpretReport(auditRow({
+    published_result: payload({
+      sections: [
+        { id: 'room', label: 'Room Quality', total: 5, met: 5, partial: 0, missed: 0, na: 0 },
+        { id: 'spa', label: 'Spa & Wellness', total: 4, met: 2, partial: 0, missed: 2, na: 0 },
+      ],
+    }),
+  }));
+  assert.equal(typeof r.view.headline, 'string');
+  assert.deepEqual(r.view.totals, { total: 9, met: 7, partial: 0, missed: 2, na: 0 });
+  assert.deepEqual(r.view.strengths.map((s) => s.id), ['room']);
+  assert.deepEqual(r.view.attention.map((s) => s.id), ['spa']);
+  assert.ok(r.view.methodology.length > 0);
+});
+
+test('view(): the legacy branch carries the same derived fields, from the recomputed sections', () => {
+  const r = interpretReport(
+    auditRow({ published_result: null }),
+    items([
+      ['RM-01', 'room', 'met'], ['RM-02', 'room', 'met'], ['RM-03', 'room', 'met'],
+      ['SP-01', 'spa', 'missed'],
+    ]),
+  );
+  assert.equal(typeof r.view.headline, 'string');
+  assert.deepEqual(r.view.strengths.map((s) => s.id), ['room']);
+  assert.deepEqual(r.view.attention.map((s) => s.id), ['spa']);
+});
+
+test('view(): an unavailable result never reaches view() at all, so none of this can appear', () => {
+  const r = interpretReport(auditRow({ published_result: { nope: true } }));
+  assert.equal(r.view, undefined);
 });

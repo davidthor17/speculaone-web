@@ -109,6 +109,96 @@
   .report-score { flex-direction: column; gap: 6px; }
 }
 
+/* Phase 6.7B: the premium client report additions. Same tokens, same
+   restraint. No new colour is introduced beyond the three already used for
+   met/partial/missed in the section bars above. */
+
+.report-unannounced {
+  color: var(--report-muted);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  margin: 6px 0 0;
+}
+
+.report-executive { margin-bottom: 36px; }
+.report-headline {
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--report-text);
+  margin: 0 0 14px;
+  max-width: 42ch;
+}
+.report-executive .report-summary-text { margin: 0; }
+
+/* Assessed, met, partial, missed, not applicable: five plain numbers in a
+   row, not a dashboard. A thin rule top and bottom is the only ornament. */
+.report-glance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding: 18px 0;
+  margin-bottom: 40px;
+  border-top: 1px solid var(--report-border);
+  border-bottom: 1px solid var(--report-border);
+}
+.report-glance-item { display: flex; flex-direction: column; gap: 3px; }
+.report-glance-num { font-family: var(--mono); font-size: 20px; color: var(--report-text); }
+.report-glance-label { font-size: 11px; color: var(--report-dim); letter-spacing: 0.02em; }
+
+.report-list { list-style: none; margin: 0; padding: 0; }
+.report-list li {
+  position: relative;
+  padding: 9px 0 9px 20px;
+  border-bottom: 1px solid var(--report-border);
+  font-size: 14px;
+  color: var(--report-text);
+}
+.report-list li:last-child { border-bottom: none; }
+.report-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.report-list-positive li::before { background: #4DC87A; }
+.report-list-attention li::before { background: #E05555; }
+
+.report-methodology { margin-top: 8px; }
+.report-methodology-item { margin-bottom: 16px; }
+.report-methodology-item:last-child { margin-bottom: 0; }
+.report-methodology-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--report-text);
+  margin: 0 0 3px;
+}
+.report-methodology-text {
+  font-size: 12.5px;
+  color: var(--report-dim);
+  line-height: 1.6;
+  max-width: 62ch;
+  margin: 0;
+}
+
+@media (max-width: 560px) {
+  .report-headline { font-size: 19px; }
+  .report-glance { gap: 20px 24px; }
+}
+
+/* Print: the score, the Mark, the findings and the section bars are the
+   substance of the document. Nothing here should split mid-block across a
+   page edge. */
+@media print {
+  .report-executive, .report-score, .report-mark-block, .report-nomark-block,
+  .report-glance, .report-block, .report-methodology-item {
+    break-inside: avoid;
+  }
+}
+
 /* Where this report's result came from. One quiet line: the disclosure explains
    provenance, it is not a warning about the property and must never read as
    one. Same treatment in all three states, frozen, legacy and incomplete. */

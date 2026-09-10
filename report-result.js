@@ -222,6 +222,113 @@ export function recomputeFromItems(items = []) {
   };
 }
 
+// ── Premium client report additions ─────────────────────────────────────────
+//
+// Phase 6.7B. Everything below is derived only from what interpretReport()
+// already read: score, sections, criticalFailures, standardMet. Nothing here
+// adds a Supabase column, widens the query in report.js, or invents a fact
+// the payload does not already state. This repository has no access to the
+// severity, dimension or pattern data the audit console's own intelligence
+// layer computes internally: that data is deliberately not part of
+// published_result, so nothing resembling a real severity ranking or a
+// cross-section pattern is attempted here. What is built instead are the
+// same two ideas at the grain the public payload actually supports: which
+// sections were assessed cleanly enough to call a strength, and which
+// carried a missed item and so are worth a second look.
+
+const STRENGTH_MIN_SAMPLE = 3;
+
+/** Strong / Good / Mixed / Requires attention, or null when nothing is scored yet. */
+export function performanceBand(percent) {
+  if (percent === null || percent === undefined) return null;
+  if (percent >= 90) return 'strong';
+  if (percent >= 75) return 'good';
+  if (percent >= 50) return 'mixed';
+  return 'attention';
+}
+
+const BAND_LABEL = {
+  strong: 'Strong', good: 'Good', mixed: 'Mixed', attention: 'Requires attention',
+};
+
+/**
+ * One deterministic sentence, never a paragraph. A critical failure always
+ * outranks the score, the same principle the audit console applies
+ * internally: a high score must never read as an unqualified pass when a
+ * critical failure is sitting underneath it.
+ */
+export function buildHeadline({ percent, standardMet, criticalFailureCount = 0, isDesk = false }) {
+  const band = performanceBand(percent);
+  if (band === null) return 'This assessment has not yet been scored.';
+  const label = BAND_LABEL[band];
+  if (criticalFailureCount > 0) {
+    const n = criticalFailureCount;
+    return `${label} overall performance, with ${n} critical finding${n === 1 ? '' : 's'} requiring attention.`;
+  }
+  if (isDesk) return `${label} overall performance.`;
+  if (band === 'strong' && standardMet) return 'A consistently strong guest experience across this stay.';
+  if (standardMet) return `${label} overall performance, meeting the Specula standard.`;
+  return `${label} overall performance.`;
+}
+
+/** Assessed items and their outcomes, summed across every published section. */
+export function performanceTotals(sections = []) {
+  return sections.reduce((acc, s) => ({
+    total: acc.total + (s.total || 0),
+    met: acc.met + (s.met || 0),
+    partial: acc.partial + (s.partial || 0),
+    missed: acc.missed + (s.missed || 0),
+    na: acc.na + (s.na || 0),
+  }), { total: 0, met: 0, partial: 0, missed: 0, na: 0 });
+}
+
+/**
+ * Sections assessed cleanly enough to call a strength: every item in the
+ * section met the standard, on a sample large enough to mean something.
+ * Three items is the floor, the same threshold the audit console itself
+ * uses for the equivalent, finer grained judgment on individual items.
+ */
+export function strongSections(sections = [], { minSample = STRENGTH_MIN_SAMPLE } = {}) {
+  return sections
+    .filter((s) => (s.total || 0) >= minSample && s.met === s.total)
+    .sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+}
+
+/** Sections carrying at least one missed item, most affected first. */
+export function attentionSections(sections = []) {
+  return sections
+    .filter((s) => (s.missed || 0) > 0)
+    .sort((a, b) => b.missed - a.missed || a.label.localeCompare(b.label));
+}
+
+/** Concise, client facing methodology notes. No internal vocabulary. */
+export function methodologyNotes(auditType) {
+  const meta = AUDIT_TYPE_COPY[auditType];
+  const notes = [
+    {
+      title: 'Assessment type',
+      text: meta
+        ? `This was a ${meta.label}, an independent, unannounced hotel assessment.`
+        : 'An independent, unannounced hotel assessment.',
+    },
+    {
+      title: 'Score',
+      text: 'The score reflects the quality of what was assessed during the stay. It is not a claim that every aspect of the property was reviewed.',
+    },
+    {
+      title: 'Not applicable items',
+      text: 'Some items do not apply to every property, or were not experienced during this particular stay. These are excluded from the score rather than counted against it.',
+    },
+  ];
+  if (auditType !== 'desk') {
+    notes.push({
+      title: 'The Specula Mark',
+      text: 'The Specula Mark is awarded only to a Full Audit that meets the required standard. It is earned through performance, never purchased.',
+    });
+  }
+  return notes;
+}
+
 // ── The view ────────────────────────────────────────────────────────────────
 
 function markFor(auditType, standardMet) {
@@ -246,6 +353,8 @@ function markFor(auditType, standardMet) {
 
 function view(source, parts) {
   const { auditType, standardMet } = parts;
+  const sections = parts.sections || [];
+  const criticalFailures = parts.criticalFailures || [];
   return {
     source,
     ref: parts.ref || null,
@@ -254,10 +363,20 @@ function view(source, parts) {
     property: parts.property,
     score: parts.score,
     standardMet,
-    sections: parts.sections,
-    criticalFailures: parts.criticalFailures,
+    sections,
+    criticalFailures,
     summary: parts.summary || null,
     disclosure: disclosureFor(parts.basis),
+    headline: buildHeadline({
+      percent: parts.score ? parts.score.percent : null,
+      standardMet,
+      criticalFailureCount: criticalFailures.length,
+      isDesk: auditType === 'desk',
+    }),
+    totals: performanceTotals(sections),
+    strengths: strongSections(sections),
+    attention: attentionSections(sections),
+    methodology: methodologyNotes(auditType),
     ...markFor(auditType, standardMet),
   };
 }
