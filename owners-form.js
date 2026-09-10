@@ -31,7 +31,7 @@ if (ownersForm) {
     submitBtn.disabled = false;
     if (error) {
       ownersNote.textContent = "Something went wrong. Please email us directly instead.";
-      ownersNote.style.color = '#E05555';
+      ownersNote.style.color = '#B3261E';
     } else {
       ownersNote.textContent = 'Request received. We reply within two business days.';
       ownersNote.style.color = '';
