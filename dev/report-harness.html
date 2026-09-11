@@ -11,8 +11,12 @@
     without a network call, a Supabase client, or a published audit.
     Never linked from the site and excluded from the sitemap.
   -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- The same three stylesheets, in the same order, as report.html. -->
   <link rel="stylesheet" href="../tokens.css">
-  <link rel="stylesheet" href="../base.css">
+  <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../report.css">
   <style>
     body { padding: 24px; }
@@ -184,6 +188,43 @@
       'R · v2, malformed intelligence': () => [row({
         published_result: v2({ intelligence: { headline: '', priorities: 'many' } }),
       }), liveItems],
+      // Phase 6.9 edge states.
+      'S · v2, clean audit, nothing to act on': () => [row({
+        published_result: v2({
+          score: { percent: 96, itemsMet: 43, itemsGraded: 45 },
+          standardMet: true,
+          intelligence: {
+            ...INTEL(),
+            headline: 'A consistently strong guest experience across this stay.',
+            summary: { overallPerformance: 'Strong', positiveSignal: 'Consistently strong performance in Pre-Arrival & Website' },
+            keyMetrics: { urgentIssueCount: 0, priorityCount: 0, patternCount: 0, strengthCount: 3, notAssessedCount: 0, notAvailableCount: 0 },
+            priorities: [], urgentIssueCount: 0, improvementCount: 0, patterns: [], sectionsToWatch: [],
+            strengths: [
+              { sectionId: 'pre', title: 'Consistently strong performance in Pre-Arrival & Website', reason: '12 of 12 assessed items met the standard in Pre-Arrival & Website, with no missed or partial items.', assessedCount: 12 },
+              { sectionId: 'spa', title: 'Consistently strong performance in Spa & Wellness', reason: '11 of 11 assessed items met the standard in Spa & Wellness, with no missed or partial items.', assessedCount: 11 },
+              { sectionId: 'room', title: 'Consistently strong performance in Room Quality', reason: '9 of 9 assessed items met the standard in Room Quality, with no missed or partial items.', assessedCount: 9 },
+            ],
+          },
+        }),
+      }), []],
+      'T · v2, low score, more priorities than shown': () => [row({
+        published_result: v2({
+          score: { percent: 38, itemsMet: 15, itemsGraded: 40 },
+          standardMet: false,
+          criticalFailures: [{ itemId: 'SAF-01', label: 'SAF-01', note: null }],
+          sections: [
+            { id: 'room', label: 'Room Quality', total: 12, met: 4, partial: 2, missed: 5, na: 1 },
+            { id: 'safety', label: 'Safety, Security & Integrity', total: 3, met: 1, partial: 0, missed: 2, na: 0 },
+            { id: 'spa', label: 'Spa & Wellness', total: 11, met: 2, partial: 1, missed: 1, na: 7 },
+          ],
+          intelligence: {
+            ...INTEL(),
+            headline: 'Overall performance requires attention, with 3 high priority issues to address.',
+            keyMetrics: { urgentIssueCount: 3, priorityCount: 7, patternCount: 3, strengthCount: 0, notAssessedCount: 3, notAvailableCount: 5 },
+            urgentIssueCount: 3, improvementCount: 2, strengths: [],
+          },
+        }),
+      }), []],
     };
 
     const bar = document.getElementById('harness-bar');
@@ -211,7 +252,20 @@
       bar.appendChild(b);
     });
     window.__show = show;
-    show('A · full, frozen, passing');
+
+    // ?case=P opens a case directly; &bare=1 drops the harness controls and
+    // lays the report out exactly as report.html does, for screenshots and
+    // print-to-PDF runs from a headless browser.
+    const params = new URLSearchParams(location.search);
+    const wanted = params.get('case');
+    const initial = Object.keys(CASES).find((k) => wanted && k.startsWith(`${wanted} `)) || 'A · full, frozen, passing';
+    if (params.get('bare') === '1') {
+      bar.style.display = 'none';
+      state.style.display = 'none';
+      document.body.style.padding = '0';
+      root.className = 'report-main';
+    }
+    show(initial);
   </script>
 </body>
 </html>

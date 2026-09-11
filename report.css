@@ -1,7 +1,15 @@
+/* The audit report. Tokens (--report-*, --serif, --sans, --mono) come from
+   tokens.css; the page chrome (nav, footer, buttons, eyebrows) from style.css.
+
+   Phase 6.9 lays the report out as a document: a cover, numbered sections
+   separated by a single hairline, and a closing identification. Colour is
+   reserved for meaning: gold for Specula's own marks, and the same three
+   met / partial / missed colours the section bars have always used. */
+
 .report-main {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 80px 8vw 120px;
+  padding: 72px clamp(20px, 6vw, 48px) 96px;
   min-height: 60vh;
 }
 
@@ -12,86 +20,249 @@
 .report-empty h1 { font-size: 28px; margin: 10px 0 14px; }
 .report-empty-sub { color: var(--report-dim); font-size: 15px; margin-bottom: 28px; }
 
-.report-head-block { margin-bottom: 36px; }
-.report-head-block h1 {
-  font-size: clamp(30px, 4vw, 44px);
-  line-height: 1.1;
-  margin: 8px 0 12px;
-}
-.report-sub { color: var(--report-dim); font-size: 15px; }
+/* ---------- cover ---------- */
 
-.report-score {
+/* No rule of its own at the foot: the first section's rule closes the cover,
+   and a second one a few pixels above it read as a printing fault. */
+.rc { margin-bottom: 64px; }
+/* The site nav carries the wordmark on screen. Printed, there is no nav, so
+   the cover carries it instead. */
+.rc-mark {
+  display: none;
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: 0.24em;
+  color: var(--report-text);
+  margin: 0 0 40px;
+}
+.rc-eyebrow { margin-bottom: 14px; }
+.rc-title {
+  font-size: clamp(34px, 5.2vw, 52px);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  overflow-wrap: break-word;
+}
+.rc-place { color: var(--report-dim); font-size: 15px; margin: 0 0 28px; }
+.rc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 44px;
+  margin: 0 0 22px;
+  padding: 16px 0;
+  border-top: 1px solid var(--report-border);
+  border-bottom: 1px solid var(--report-border);
+}
+.rc-meta div { min-width: 0; }
+.rc-meta dt {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--report-dim);
+  margin: 0 0 5px;
+}
+.rc-meta dd { margin: 0; font-size: 14px; color: var(--report-text); }
+.rc-note { color: var(--report-dim); font-size: 13px; margin: 0; }
+.report-pdf-btn { margin-top: 24px; padding: 10px 18px; font-size: 13px; }
+
+/* ---------- numbered sections ---------- */
+
+/* style.css gives every <section> marketing-page padding; the report's
+   sections are chapters of one document and take none of it. */
+.report-main section.rs { padding: 0; max-width: none; margin: 0 0 64px; }
+
+.rs-head {
   display: flex;
   align-items: baseline;
-  gap: 18px;
-  padding: 28px 30px;
-  background: var(--report-surface);
-  border: 1px solid var(--report-border);
-  border-radius: 3px;
-  margin-bottom: 40px;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--report-border);
+  margin: 0 0 24px;
 }
-.report-score-num {
-  font-family: var(--serif);
-  font-size: 48px;
+.rs-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
   color: var(--report-gold);
-  line-height: 1;
+  flex-shrink: 0;
 }
-.report-score-label { color: var(--report-dim); font-size: 14px; max-width: 30ch; }
-
-.report-mark-block {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 26px;
-  background: var(--report-surface);
-  border: 1px solid var(--report-border);
-  border-radius: 3px;
-  margin-bottom: 40px;
+.rs-title { font-size: 25px; line-height: 1.25; }
+.rs-lead {
+  color: var(--report-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: -6px 0 22px;
 }
-.report-mark-icon { width: 74px; height: 74px; flex-shrink: 0; }
-.report-mark-icon svg { width: 100%; height: 100%; }
-.report-mark-title { font-family: var(--serif); font-size: 18px; margin: 0 0 4px; }
-.report-mark-sub { color: var(--report-dim); font-size: 13px; margin: 0; }
+.rs-empty { color: var(--report-dim); font-size: 15px; margin: 0; }
 
-.report-nomark-block {
-  padding: 20px 26px;
-  background: var(--report-surface);
-  border: 1px solid var(--report-border);
-  border-radius: 3px;
-  margin-bottom: 40px;
+/* ---------- executive summary ---------- */
+
+.rx-headline {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.8vw, 29px);
+  line-height: 1.35;
+  color: var(--report-text);
+  max-width: 34ch;
+  margin: 0;
 }
-.report-nomark-block .report-mark-title { font-size: 16px; }
-
-.report-block { margin-bottom: 40px; }
+.rx-summary {
+  margin-top: 28px;
+  padding-left: 18px;
+  border-left: 2px solid var(--report-gold-border);
+}
+.rx-summary-label, .rg-caption {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--report-dim);
+  margin: 0 0 8px;
+}
 .report-summary-text {
   color: var(--report-text);
   font-size: 16px;
   line-height: 1.7;
   max-width: 62ch;
   white-space: pre-wrap;
+  margin: 0;
 }
 
-.report-failure {
-  padding: 16px 18px;
-  background: rgba(224,85,85,0.07);
-  border: 1px solid rgba(224,85,85,0.3);
-  border-radius: 3px;
-  margin-bottom: 10px;
-}
-.report-failure-label { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-.report-failure-note { color: var(--report-dim); font-size: 13px; }
+/* ---------- performance at a glance ---------- */
 
-.report-sections { display: flex; flex-direction: column; gap: 4px; }
+.rg-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px 48px;
+  margin-bottom: 32px;
+}
+.rg-score { display: flex; align-items: baseline; gap: 16px; }
+.rg-num {
+  font-family: var(--serif);
+  font-size: 64px;
+  line-height: 1;
+  color: var(--report-gold);
+  margin: 0;
+}
+.rg-pct { font-size: 0.5em; margin-left: 2px; }
+.rg-label { color: var(--report-dim); font-size: 14px; line-height: 1.5; max-width: 22ch; margin: 0; }
+
+.rg-status { display: flex; align-items: center; gap: 16px; }
+.report-mark-icon { width: 64px; height: 64px; flex-shrink: 0; }
+.report-mark-icon svg { width: 100%; height: 100%; display: block; }
+.rg-status-title { font-family: var(--serif); font-size: 17px; color: var(--report-dim); margin: 0 0 3px; }
+.rg-status-gold { color: var(--report-gold); }
+.rg-status-silver { color: var(--report-silver); }
+.rg-status-sub { color: var(--report-dim); font-size: 13px; margin: 0; }
+
+.rg-figures + .rg-figures { margin-top: 24px; }
+.rg-caption { margin-bottom: 10px; }
+.rg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--report-border);
+  border-bottom: 1px solid var(--report-border);
+}
+.rg-fig { display: flex; flex-direction: column; gap: 4px; padding: 16px 12px 16px 0; min-width: 0; }
+.rg-fig dd { order: -1; margin: 0; font-family: var(--mono); font-size: 22px; color: var(--report-text); }
+.rg-fig dt { font-size: 12px; color: var(--report-dim); }
+
+/* ---------- published judgments: strengths, priorities, patterns ---------- */
+
+.ri-list { display: grid; gap: 18px; }
+.report-insight {
+  margin: 0;
+  padding: 2px 0 2px 18px;
+  border-left: 2px solid var(--report-border);
+}
+.report-insight-title {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--report-text);
+  margin: 0 0 5px;
+}
+.report-insight-text {
+  font-size: 14px;
+  color: var(--report-dim);
+  line-height: 1.65;
+  max-width: 62ch;
+  margin: 0;
+}
+.report-insight-high { border-left-color: #E05555; }
+.report-insight-moderate { border-left-color: #F5A623; }
+.report-insight-low { border-left-color: var(--report-silver); }
+.report-insight-positive { border-left-color: #4DC87A; }
+.report-insight-pattern { border-left-color: var(--report-gold-border); }
+
+.rp-group + .rp-group { margin-top: 34px; }
+.rp-group-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--report-text);
+  margin: 0 0 16px;
+}
+.rp-count { color: var(--report-dim); }
+.rp-note { color: var(--report-dim); font-size: 13px; margin: 24px 0 0; }
+
+/* Section-level lists, for reports published without intelligence. */
+.report-list { list-style: none; margin: 0; padding: 0; }
+.report-list li {
+  position: relative;
+  padding: 10px 0 10px 20px;
+  border-bottom: 1px solid var(--report-border);
+  font-size: 15px;
+  color: var(--report-text);
+}
+.report-list li:last-child { border-bottom: none; }
+.report-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.report-list-positive li::before { background: #4DC87A; }
+.report-list-attention li::before { background: #E05555; }
+
+/* ---------- section performance ---------- */
+
+.rl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 12px;
+  color: var(--report-dim);
+}
+.rl-legend li { display: flex; align-items: center; gap: 8px; }
+.rl-swatch { display: inline-block; width: 12px; height: 6px; border-radius: 3px; }
+.rl-swatch-na { background: var(--report-surface2); }
+
+.report-sections { display: flex; flex-direction: column; border-top: 1px solid var(--report-border); }
 .report-section-row {
   display: grid;
-  grid-template-columns: 1fr 140px 50px;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 220px) 64px;
   align-items: center;
-  gap: 16px;
-  padding: 12px 0;
+  gap: 18px;
+  padding: 13px 0;
   border-bottom: 1px solid var(--report-border);
   font-size: 14px;
 }
-.report-section-name { color: var(--report-text); }
+.report-section-name { color: var(--report-text); min-width: 0; }
 .report-section-bar {
   display: flex;
   height: 6px;
@@ -102,130 +273,71 @@
 .rsb-met { background: #4DC87A; }
 .rsb-partial { background: #F5A623; }
 .rsb-missed { background: #E05555; }
-.report-section-stat { color: var(--report-dim); font-family: var(--mono); font-size: 12px; text-align: right; }
-
-@media (max-width: 560px) {
-  .report-section-row { grid-template-columns: 1fr 80px 40px; gap: 10px; font-size: 13px; }
-  .report-score { flex-direction: column; gap: 6px; }
-}
-
-/* Phase 6.7B: the premium client report additions. Same tokens, same
-   restraint. No new colour is introduced beyond the three already used for
-   met/partial/missed in the section bars above. */
-
-.report-unannounced {
-  color: var(--report-muted);
+.report-section-stat {
+  color: var(--report-dim);
+  font-family: var(--mono);
   font-size: 12px;
-  letter-spacing: 0.03em;
-  margin: 6px 0 0;
+  text-align: right;
+  white-space: nowrap;
 }
 
-.report-executive { margin-bottom: 36px; }
-.report-headline {
-  font-family: var(--serif);
-  font-size: 22px;
-  line-height: 1.4;
-  color: var(--report-text);
-  margin: 0 0 14px;
-  max-width: 42ch;
-}
-.report-executive .report-summary-text { margin: 0; }
+/* ---------- key findings ---------- */
 
-/* Assessed, met, partial, missed, not applicable: five plain numbers in a
-   row, not a dashboard. A thin rule top and bottom is the only ornament. */
-.report-glance {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 28px;
-  padding: 18px 0;
-  margin-bottom: 40px;
-  border-top: 1px solid var(--report-border);
-  border-bottom: 1px solid var(--report-border);
-}
-.report-glance-item { display: flex; flex-direction: column; gap: 3px; }
-.report-glance-num { font-family: var(--mono); font-size: 20px; color: var(--report-text); }
-.report-glance-label { font-size: 11px; color: var(--report-dim); letter-spacing: 0.02em; }
-
-.report-list { list-style: none; margin: 0; padding: 0; }
-.report-list li {
-  position: relative;
-  padding: 9px 0 9px 20px;
-  border-bottom: 1px solid var(--report-border);
-  font-size: 14px;
-  color: var(--report-text);
-}
-.report-list li:last-child { border-bottom: none; }
-.report-list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 16px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-.report-list-positive li::before { background: #4DC87A; }
-.report-list-attention li::before { background: #E05555; }
-
-/* Phase 6.8. A published priority, pattern or strength: a title and one line
-   explaining it, both written by the audit console and frozen at publication.
-   Quieter than the critical failure treatment above, which stays the loudest
-   thing on the page, and a left rule rather than a filled panel so a report
-   carrying five of them still reads as a document. */
-.report-insight {
-  padding: 12px 0 12px 16px;
-  border-left: 2px solid var(--report-border);
+.report-failure {
+  padding: 14px 18px;
+  background: rgba(224, 85, 85, 0.06);
+  border-left: 2px solid #E05555;
   margin-bottom: 12px;
 }
-.report-insight:last-child { margin-bottom: 0; }
-.report-insight-title {
-  font-size: 14px;
-  font-weight: 600;
+.report-failure:last-child { margin-bottom: 0; }
+.report-failure-label { font-weight: 600; font-size: 15px; line-height: 1.45; color: var(--report-text); margin: 0 0 4px; }
+.report-failure-label:last-child { margin: 0; }
+.report-failure-note { color: var(--report-dim); font-size: 14px; line-height: 1.6; margin: 0; }
+
+/* ---------- areas to watch ---------- */
+
+.rw { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--report-border); }
+.rw-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--report-border);
+}
+.rw-label { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--report-text); min-width: 0; }
+.rw-sev { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--report-silver); }
+.rw-sev-high { background: #E05555; }
+.rw-sev-moderate { background: #F5A623; }
+.rw-meta { font-family: var(--mono); font-size: 12px; color: var(--report-dim); padding-left: 20px; }
+
+/* ---------- methodology and scope ---------- */
+
+.rm { margin: 0; }
+.rm-item {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--report-border);
+}
+.rm-item:first-child { padding-top: 0; }
+.rm-item:last-child { border-bottom: none; }
+.rm-item dt { font-size: 13px; font-weight: 600; line-height: 1.6; color: var(--report-text); }
+.rm-item dd { margin: 0; font-size: 14px; line-height: 1.65; color: var(--report-dim); max-width: 60ch; }
+
+/* ---------- closing identification ---------- */
+
+.rf { margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--report-border); }
+.rf-mark {
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: 0.24em;
   color: var(--report-text);
-  margin: 0 0 4px;
+  margin: 0 0 10px;
 }
-.report-insight-text {
-  font-size: 13px;
-  color: var(--report-dim);
-  line-height: 1.65;
-  max-width: 62ch;
-  margin: 0;
-}
-.report-insight-high { border-left-color: #E05555; }
-.report-insight-moderate { border-left-color: #F5A623; }
-.report-insight-positive { border-left-color: #4DC87A; }
-
-.report-methodology { margin-top: 8px; }
-.report-methodology-item { margin-bottom: 16px; }
-.report-methodology-item:last-child { margin-bottom: 0; }
-.report-methodology-title {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--report-text);
-  margin: 0 0 3px;
-}
-.report-methodology-text {
-  font-size: 12.5px;
-  color: var(--report-dim);
-  line-height: 1.6;
-  max-width: 62ch;
-  margin: 0;
-}
-
-@media (max-width: 560px) {
-  .report-headline { font-size: 19px; }
-  .report-glance { gap: 20px 24px; }
-}
-
-/* Print: the score, the Mark, the findings and the section bars are the
-   substance of the document. Nothing here should split mid-block across a
-   page edge. */
-@media print {
-  .report-executive, .report-score, .report-mark-block, .report-nomark-block,
-  .report-glance, .report-block, .report-methodology-item, .report-insight {
-    break-inside: avoid;
-  }
-}
+.rf-line { font-size: 13px; color: var(--report-dim); margin: 0 0 8px; }
 
 /* Where this report's result came from. One quiet line: the disclosure explains
    provenance, it is not a warning about the property and must never read as
@@ -236,5 +348,71 @@
   line-height: 1.6;
   max-width: 62ch;
   margin: 0;
-  padding-top: 4px;
+}
+
+/* ---------- smaller screens ---------- */
+
+@media (max-width: 720px) {
+  .rs-title { font-size: 22px; }
+  .rm-item { grid-template-columns: 1fr; gap: 4px; }
+}
+
+@media (max-width: 560px) {
+  .report-main { padding-top: 48px; padding-bottom: 72px; }
+  .rc { margin-bottom: 44px; }
+  .report-main section.rs { margin-bottom: 52px; }
+  .rg-num { font-size: 52px; }
+  .rg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .report-section-row { grid-template-columns: minmax(0, 1fr) 84px 52px; gap: 12px; font-size: 13px; }
+  .rc-meta { gap: 14px 28px; }
+}
+
+/* ---------- print and save as PDF ----------
+   The report is printed from the browser. The dark screen palette is swapped
+   for ink on paper through the same tokens every rule above already reads, so
+   nothing is restyled twice. The three result colours are kept, and forced to
+   print, because the section bars and severity rules mean nothing without them. */
+
+@page { margin: 16mm 15mm 18mm; }
+
+@media print {
+  :root {
+    --report-bg: #FFFFFF;
+    --report-surface: #FFFFFF;
+    --report-surface2: #E9E6DF;
+    --report-border: #D8D3C8;
+    --report-gold: #7A5C2E;
+    --report-gold-border: rgba(122, 92, 46, 0.45);
+    --report-silver: #6B6A70;
+    --report-text: #15130F;
+    --report-dim: #4F4B44;
+    --report-muted: #6E6A62;
+  }
+  html, body { background: #FFFFFF !important; }
+  .nav, .footer, .skip-link, .report-pdf-btn { display: none !important; }
+
+  .report-main { max-width: none; padding: 0; min-height: 0; }
+  .rc-mark { display: block; }
+  .rc { margin-bottom: 36px; }
+  .report-main section.rs { margin-bottom: 30px; }
+
+  /* A heading is never left alone at the foot of a page. */
+  .rs-head, .rs-lead, .rp-group-label, .rg-caption, .rl-legend {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  /* And no single judgment, row or figure is cut in half. */
+  .rc, .rg-result, .rg-figures, .rx-summary, .report-insight, .report-failure,
+  .report-section-row, .rw-row, .rm-item, .rf, .rs-lead {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .report-summary-text, .report-insight-text, .rm-item dd { orphans: 3; widows: 3; }
+
+  .report-section-bar, .rsb-met, .rsb-partial, .rsb-missed, .rl-swatch,
+  .report-insight, .report-failure, .rw-sev, .report-list li::before {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .rg-num { font-size: 54px; }
 }

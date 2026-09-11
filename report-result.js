@@ -430,25 +430,46 @@ export function attentionSections(sections = []) {
     .sort((a, b) => b.missed - a.missed || a.label.localeCompare(b.label));
 }
 
-/** Concise, client facing methodology notes. No internal vocabulary. */
-export function methodologyNotes(auditType) {
+/**
+ * Concise, client facing methodology notes. No internal vocabulary.
+ *
+ * Both options are optional, and without them the notes are exactly what they
+ * always were. sectionCount adds a scope line stating how many areas the audit
+ * recorded, which the payload already says by listing them. naSplit swaps the
+ * single not-applicable note for one explaining the two kinds separately, and
+ * is set only when the page is actually showing them separately.
+ */
+export function methodologyNotes(auditType, { sectionCount = null, naSplit = false } = {}) {
   const meta = AUDIT_TYPE_COPY[auditType];
+  // A Desk Review involves no stay, so it is not described as unannounced.
+  const nature = auditType === 'desk'
+    ? 'an independent hotel assessment.'
+    : 'an independent, unannounced hotel assessment.';
   const notes = [
     {
       title: 'Assessment type',
-      text: meta
-        ? `This was a ${meta.label}, an independent, unannounced hotel assessment.`
-        : 'An independent, unannounced hotel assessment.',
-    },
-    {
-      title: 'Score',
-      text: 'The score reflects the quality of what was assessed during the stay. It is not a claim that every aspect of the property was reviewed.',
-    },
-    {
-      title: 'Not applicable items',
-      text: 'Some items do not apply to every property, or were not experienced during this particular stay. These are excluded from the score rather than counted against it.',
+      text: meta ? `This was a ${meta.label}, ${nature}` : 'An independent, unannounced hotel assessment.',
     },
   ];
+  if (Number.isInteger(sectionCount) && sectionCount > 0) {
+    notes.push({
+      title: 'Scope',
+      text: `Results were recorded across ${sectionCount} area${sectionCount === 1 ? '' : 's'} of the guest experience, each shown under Section Performance.`,
+    });
+  }
+  notes.push({
+    title: 'Score',
+    text: 'The score reflects the quality of what was assessed during the stay. It is not a claim that every aspect of the property was reviewed.',
+  });
+  notes.push(naSplit
+    ? {
+      title: 'Not assessed and not available',
+      text: 'Items marked not assessed exist at the property but were not experienced during this stay. Items marked not available are services or facilities the property does not offer. Neither is counted against the score.',
+    }
+    : {
+      title: 'Not applicable items',
+      text: 'Some items do not apply to every property, or were not experienced during this particular stay. These are excluded from the score rather than counted against it.',
+    });
   if (auditType !== 'desk') {
     notes.push({
       title: 'The Specula Mark',
@@ -456,6 +477,137 @@ export function methodologyNotes(auditType) {
     });
   }
   return notes;
+}
+
+// ── Phase 6.9: the delivered report ─────────────────────────────────────────
+//
+// Presentation decisions for the client deliverable, kept here rather than in
+// the renderer so each one is a pure function a test can hold still. None of
+// them reads anything interpretReport() did not already read, and none of them
+// computes a new figure: they choose, order and label what the payload says.
+
+/**
+ * The two kinds of not-applicable, or null.
+ *
+ * The published intelligence counts them separately; the section rows count
+ * them together. Shown separately only when the two agree to the item, because
+ * a page that says "17 not applicable" in one place and "3 not assessed, 13 not
+ * available" in another has contradicted itself, however good the reason.
+ */
+export function naSplit(totals, intelligence) {
+  if (!intelligence || !totals) return null;
+  const km = intelligence.keyMetrics || {};
+  const notAssessed = km.notAssessedCount;
+  const notAvailable = km.notAvailableCount;
+  if (!Number.isFinite(notAssessed) || !Number.isFinite(notAvailable)) return null;
+  if (notAssessed + notAvailable !== totals.na) return null;
+  return { notAssessed, notAvailable };
+}
+
+/**
+ * The figures under the headline score, in two short rows.
+ *
+ * items    what happened to every assessed item, from the published sections
+ * followUp how much there is to act on, from the published intelligence, and
+ *          only when there is intelligence to read it from
+ *
+ * The urgent count is taken from the published top priorities. When every one
+ * of those is urgent and more priorities exist beyond them, the true urgent
+ * count may be higher than the list shows, so it is stated as a floor rather
+ * than as a number that might be an understatement.
+ */
+export function glanceFigures(totals, intelligence) {
+  const items = [];
+  if (totals && totals.total) {
+    items.push(
+      { key: 'met', label: 'Met', value: totals.met },
+      { key: 'partial', label: 'Partial', value: totals.partial },
+      { key: 'missed', label: 'Missed', value: totals.missed },
+    );
+    const split = naSplit(totals, intelligence);
+    if (split) {
+      items.push(
+        { key: 'notAssessed', label: 'Not assessed', value: split.notAssessed },
+        { key: 'notAvailable', label: 'Not available', value: split.notAvailable },
+      );
+    } else {
+      items.push({ key: 'na', label: 'Not applicable', value: totals.na });
+    }
+  }
+
+  const followUp = [];
+  if (intelligence) {
+    const km = intelligence.keyMetrics;
+    const shown = intelligence.priorities.length;
+    const urgent = km.urgentIssueCount;
+    const floor = shown > 0 && urgent === shown && km.priorityCount > shown;
+    followUp.push({
+      key: 'urgent',
+      label: urgent === 1 && !floor ? 'Urgent issue' : 'Urgent issues',
+      value: floor ? `${urgent}+` : urgent,
+    });
+    followUp.push({
+      key: 'priorities',
+      label: km.priorityCount === 1 ? 'Priority identified' : 'Priorities identified',
+      value: km.priorityCount,
+    });
+  }
+  return { items, followUp };
+}
+
+/**
+ * The published priorities, split into urgent issues and improvement areas.
+ *
+ * The payload carries the two counts rather than a flag per priority. That is
+ * enough, because the console ranks by severity before anything else and an
+ * urgent priority is by construction one of the most severe: the urgent ones
+ * are always the leading ranks. The split is only made when the counts add up
+ * to the list exactly; otherwise the list is shown whole rather than guessed at.
+ */
+export function priorityGroups(intelligence) {
+  if (!intelligence || !intelligence.priorities.length) return [];
+  const list = intelligence.priorities;
+  const urgent = intelligence.urgentIssueCount;
+  const improvement = intelligence.improvementCount;
+  const exact = Number.isInteger(urgent) && Number.isInteger(improvement)
+    && urgent >= 0 && improvement >= 0 && urgent + improvement === list.length;
+  if (!exact) return [{ key: 'all', label: null, items: list }];
+  return [
+    { key: 'urgent', label: 'Urgent issues', items: list.slice(0, urgent) },
+    { key: 'improvement', label: 'Improvement areas', items: list.slice(urgent) },
+  ].filter((g) => g.items.length);
+}
+
+/** A line saying the list is the top of a longer one, or null when it is the whole of it. */
+export function prioritiesNote(intelligence) {
+  if (!intelligence) return null;
+  const shown = intelligence.priorities.length;
+  const total = intelligence.keyMetrics.priorityCount;
+  if (!shown || !Number.isFinite(total) || total <= shown) return null;
+  return `The ${shown} highest of ${total} priorities identified are shown here.`;
+}
+
+/** The published sections to watch, with nothing added and nothing internal kept. */
+export function areasToWatch(intelligence) {
+  if (!intelligence) return [];
+  return intelligence.sectionsToWatch.map((s) => ({
+    label: s.sectionLabel,
+    severity: s.severity,
+    findingCount: Number.isFinite(s.findingCount) && s.findingCount > 0 ? s.findingCount : null,
+  }));
+}
+
+/**
+ * The name a critical finding is shown under.
+ *
+ * The console falls back to an item's catalogue id when its label is blank,
+ * so a stored label can be a bare reference like "RM-02". That is an internal
+ * identifier, never a client-facing name, and is replaced with plain words.
+ */
+export function findingLabel(finding) {
+  const label = finding && typeof finding.label === 'string' ? finding.label.trim() : '';
+  if (!label || (finding.itemId && label === finding.itemId)) return 'Critical finding';
+  return label;
 }
 
 // ── The view ────────────────────────────────────────────────────────────────
@@ -491,6 +643,7 @@ function view(source, parts) {
   // Showing both would put a coarse stand-in beside the real thing and invite
   // the reader to notice they disagree.
   const intelligence = parts.intelligence || null;
+  const totals = performanceTotals(sections);
   return {
     source,
     ref: parts.ref || null,
@@ -509,11 +662,22 @@ function view(source, parts) {
       criticalFailureCount: criticalFailures.length,
       isDesk: auditType === 'desk',
     }),
-    totals: performanceTotals(sections),
+    totals,
     strengths: intelligence ? [] : strongSections(sections),
     attention: intelligence ? [] : attentionSections(sections),
     intelligence,
-    methodology: methodologyNotes(auditType),
+    // Phase 6.9. What the delivered report shows, decided here so the renderer
+    // only paints. Each is empty rather than absent when there is nothing to
+    // show, so the page can omit a section without testing for its existence.
+    figures: glanceFigures(totals, intelligence),
+    priorityGroups: priorityGroups(intelligence),
+    prioritiesNote: prioritiesNote(intelligence),
+    watch: areasToWatch(intelligence),
+    findings: criticalFailures.map((f) => ({ label: findingLabel(f), note: (f && f.note) || null })),
+    methodology: methodologyNotes(auditType, {
+      sectionCount: sections.length,
+      naSplit: Boolean(naSplit(totals, intelligence)),
+    }),
     ...markFor(auditType, standardMet),
   };
 }
