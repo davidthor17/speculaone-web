@@ -525,14 +525,17 @@ test('the stylesheet steps down for small screens without a horizontal scroll so
 
 // ── the data boundary ──────────────────────────────────────────────────────
 
-test('the public query asks for exactly what it always has, and nothing internal', () => {
+test('the public page makes one request, to the report function, and reads no table', () => {
+  // Phase 7.2. Direct anon SELECT on audits, audit_items and properties is
+  // revoked, so a table read here would take every report offline.
   const src = read('report.js');
-  assert.ok(src.includes(".select('id, ref, date, status, tier, auditor_summary, critical_failures, published_result, properties(name, city, country, category)')"));
-  assert.ok(src.includes(".select('item_id, section_id, status')"), 'the legacy fallback is unchanged');
-  for (const col of ['auditor_id', 'price_quoted', 'currency', 'opportunity_id', 'na_note', 'na_reason', 'note', 'audit_item_photos', 'public_token', 'snapshot']) {
-    assert.equal(new RegExp(`select\\([^)]*\\b${col}\\b`).test(src), false, `${col} is never requested`);
+  assert.equal((src.match(/\.from\(/g) || []).length, 0, 'no direct table read');
+  assert.equal(/\.select\(/.test(src), false, 'no column list: the function decides the shape');
+  assert.equal((src.match(/\.rpc\(/g) || []).length, 1, 'exactly one request');
+  assert.ok(src.includes(".rpc('get_public_report', request)"));
+  for (const col of ['auditor_id', 'price_quoted', 'currency', 'opportunity_id', 'na_note', 'na_reason', 'audit_item_photos', 'public_token', 'snapshot']) {
+    assert.equal(src.includes(col), false, `${col} is never named`);
   }
-  assert.equal((src.match(/\.from\(/g) || []).length, 2, 'two reads, no new one');
 });
 
 test('scope and naSplit are pure restatements of the payload', () => {

@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { interpretReport } from './report-result.js';
+import { interpretReport, reportRequest, envelopeToReport } from './report-result.js';
 import { renderNotFound, renderUnsupported, renderReport } from './report-render.js';
 
 // This file fetches and paints. Everything that decides what the page should
@@ -7,6 +7,11 @@ import { renderNotFound, renderUnsupported, renderReport } from './report-render
 // therefore testable. See that file for the rule this page now follows: when a
 // published audit carries a frozen payload, the report renders it and reads
 // nothing else.
+//
+// Phase 7.2. The page reads no table. It makes one call to the report function
+// with the identifier in its own URL (?token=, or ?ref= for every link issued
+// before it), and the function returns one published report or nothing. An
+// unknown identifier and an unpublished audit look the same from here.
 
 const supabase = createClient(
   'https://zbmhfdoqmzzscdklziss.supabase.co',
@@ -16,31 +21,14 @@ const supabase = createClient(
 const root = document.getElementById('report-root');
 
 async function load() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if (!ref) { renderNotFound(root); return; }
+  const request = reportRequest(window.location.search);
+  if (!request) { renderNotFound(root); return; }
 
-  const { data: audit, error } = await supabase
-    .from('audits')
-    .select('id, ref, date, status, tier, auditor_summary, critical_failures, published_result, properties(name, city, country, category)')
-    .eq('ref', ref)
-    .eq('status', 'published')
-    .maybeSingle();
+  const { data, error } = await supabase.rpc('get_public_report', request);
+  if (error) { renderNotFound(root); return; }
 
-  if (error || !audit) { renderNotFound(root); return; }
-
-  // Item rows are fetched only for audits published before payloads existed. A
-  // payload-backed report must not read them, so it does not ask for them.
-  let items = [];
-  if (audit.published_result === null || audit.published_result === undefined) {
-    const { data } = await supabase
-      .from('audit_items')
-      .select('item_id, section_id, status')
-      .eq('audit_id', audit.id);
-    items = data || [];
-  }
-
-  const result = interpretReport(audit, items);
+  const { auditRow, items } = envelopeToReport(data);
+  const result = interpretReport(auditRow, items);
   if (result.mode === 'unavailable') {
     if (result.reason === 'not-found') renderNotFound(root);
     else renderUnsupported(root);

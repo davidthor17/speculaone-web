@@ -817,3 +817,48 @@ export function interpretReport(auditRow, items = []) {
     }),
   };
 }
+
+// ── the public request ─────────────────────────────────────────────────────
+//
+// Phase 7.2. The page no longer reads any table. It makes one call to
+// public.get_public_report with the exact identifier in its own URL, and the
+// function returns one published report or nothing. These two functions are
+// the whole of what report.js decides, kept here so they can be tested.
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The function arguments for this page's URL, or null when there is nothing to
+ * ask for. ?token= is how reports are shared from Phase 7.2 on; ?ref= keeps
+ * every link issued before it working. A token wins when both are present, and
+ * a malformed token asks for nothing rather than falling back to the ref.
+ */
+export function reportRequest(search) {
+  const params = new URLSearchParams(search || '');
+  if (params.has('token')) {
+    const token = params.get('token');
+    return UUID.test(token) ? { p_token: token } : null;
+  }
+  const ref = params.get('ref');
+  return ref ? { p_ref: ref } : null;
+}
+
+/**
+ * The function's envelope as the audit row and items interpretReport has always
+ * read. A missing envelope is a missing audit. Items are only ever passed on for
+ * a report with no frozen payload, whatever the envelope carries.
+ */
+export function envelopeToReport(envelope) {
+  if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) return { auditRow: null, items: [] };
+  const auditRow = {
+    ref: envelope.ref,
+    date: envelope.date,
+    tier: envelope.tier,
+    auditor_summary: envelope.auditor_summary ?? null,
+    critical_failures: envelope.critical_failures ?? null,
+    published_result: envelope.published_result ?? null,
+    properties: envelope.properties ?? null,
+  };
+  const items = auditRow.published_result === null && Array.isArray(envelope.items) ? envelope.items : [];
+  return { auditRow, items };
+}
