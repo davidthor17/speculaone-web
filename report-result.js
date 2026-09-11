@@ -387,7 +387,7 @@ export function buildHeadline({ percent, standardMet, criticalFailureCount = 0, 
     : `${BAND_LABEL[band]} overall performance`;
   if (criticalFailureCount > 0) {
     const n = criticalFailureCount;
-    const findings = `${n} critical finding${n === 1 ? '' : 's'}`;
+    const findings = `${numberWord(n)} critical finding${n === 1 ? '' : 's'}`;
     // "requires attention, with ... requiring attention" says the same thing
     // twice in one sentence.
     return band === 'attention'
@@ -397,8 +397,36 @@ export function buildHeadline({ percent, standardMet, criticalFailureCount = 0, 
   if (isDesk) return `${lead}.`;
   if (band === 'strong' && standardMet) return 'A consistently strong guest experience across this stay.';
   if (standardMet) return `${lead}, meeting the Specula standard.`;
+  // Phase 7.1. A band that sounds like a pass, directly above a status line
+  // saying the standard was not met, read as more positive than the audit was.
+  // The same rule the audit console now publishes into version 2 headlines.
+  if (band === 'strong' || band === 'good') return `${lead} but below the Specula standard.`;
   return `${lead}.`;
 }
+
+// ── Phase 7.1: client language ──────────────────────────────────────────────
+
+const NUMBER_WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+/** Small counts in words, larger ones in figures, the way a written report does it. */
+export const numberWord = (n) => (Number.isInteger(n) && n >= 0 && n <= 10 ? NUMBER_WORD[n] : String(n));
+
+/**
+ * A catalogue label as a quoted standard.
+ *
+ * A label names the standard an item was assessed against, not what was found:
+ * "No hair, stains, or odors" is what a clean room looks like. Printed bare as
+ * a finding it reads as praise, so it is only ever shown quoted and introduced
+ * as a standard. An em dash inside a label becomes a colon, because the report's
+ * copy rules forbid em dashes in client-facing text.
+ */
+export const quotedStandard = (label) => {
+  const s = String(label ?? '').trim().replace(/\s*[—–]\s*/g, ': ').replace(/\s*--\s*/g, ': ');
+  return s ? `“${s}”` : null;
+};
+
+const listOf = (items) => (items.length <= 1
+  ? items.join('')
+  : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
 
 /** Assessed items and their outcomes, summed across every published section. */
 export function performanceTotals(sections = []) {
@@ -587,27 +615,70 @@ export function prioritiesNote(intelligence) {
   return `The ${shown} highest of ${total} priorities identified are shown here.`;
 }
 
-/** The published sections to watch, with nothing added and nothing internal kept. */
-export function areasToWatch(intelligence) {
+/**
+ * The published sections to watch, as markers for the Section Performance rows.
+ *
+ * Phase 7.1. Printed as a list of its own, this restated Priorities and
+ * Patterns: the Phase 7.0 audit named Room Quality and Reception in five places.
+ * What it genuinely adds is which areas management should watch, and that
+ * belongs on the rows where each area's result already is, not in a sixth list.
+ */
+export function sectionWatch(intelligence) {
   if (!intelligence) return [];
   return intelligence.sectionsToWatch.map((s) => ({
+    sectionId: s.sectionId || null,
     label: s.sectionLabel,
     severity: s.severity,
-    findingCount: Number.isFinite(s.findingCount) && s.findingCount > 0 ? s.findingCount : null,
   }));
 }
 
 /**
- * The name a critical finding is shown under.
+ * The patterns worth a client's time.
  *
- * The console falls back to an item's catalogue id when its label is blank,
- * so a stored label can be a bare reference like "RM-02". That is an internal
- * identifier, never a client-facing name, and is replaced with plain words.
+ * Phase 7.1. Three rules, each removing repetition rather than information:
+ *
+ *   recurring      dropped. "3 related failures within Room Quality" restates
+ *                  the section's own row and the priorities listed above it.
+ *   inconsistent   merged into one line naming every area it applies to. What
+ *                  it adds is the shape of the result, mixed rather than
+ *                  uniformly weak, and that needs saying once, not per area.
+ *   cross_area     kept as published. It is the one pattern that connects
+ *                  areas no other section of the report puts side by side.
+ *
+ * Nothing is inferred beyond the pattern types the audit console published.
  */
-export function findingLabel(finding) {
+export function displayPatterns(intelligence, sections = []) {
+  if (!intelligence) return [];
+  const out = [];
+  for (const p of intelligence.patterns) {
+    if (p.type === 'cross_area') out.push({ key: 'cross_area', title: PATTERN_TYPE_LABEL.cross_area, text: p.explanation });
+  }
+  const mixedIds = new Set(intelligence.patterns
+    .filter((p) => p.type === 'inconsistent')
+    .flatMap((p) => (Array.isArray(p.sectionIds) ? p.sectionIds : [])));
+  const mixed = sections.filter((s) => mixedIds.has(s.id)).map((s) => s.label);
+  if (mixed.length) {
+    out.push({
+      key: 'inconsistent',
+      title: PATTERN_TYPE_LABEL.inconsistent,
+      text: `Results in ${listOf(mixed)} were mixed rather than uniformly weak, with standards met alongside those that were not.`,
+    });
+  }
+  return out;
+}
+
+/**
+ * A critical finding, presented so that its outcome cannot be misread.
+ *
+ * The stored label is the standard the item was assessed against, so it is
+ * shown as a quoted standard under a "Critical finding" heading rather than as
+ * a sentence of its own. The console falls back to an item's catalogue id when
+ * a label is blank; an id is an internal reference and is never shown.
+ */
+export function presentFinding(finding) {
   const label = finding && typeof finding.label === 'string' ? finding.label.trim() : '';
-  if (!label || (finding.itemId && label === finding.itemId)) return 'Critical finding';
-  return label;
+  const known = label && !(finding.itemId && label === finding.itemId);
+  return { standard: known ? quotedStandard(label) : null, note: (finding && finding.note) || null };
 }
 
 // ── The view ────────────────────────────────────────────────────────────────
@@ -672,8 +743,9 @@ function view(source, parts) {
     figures: glanceFigures(totals, intelligence),
     priorityGroups: priorityGroups(intelligence),
     prioritiesNote: prioritiesNote(intelligence),
-    watch: areasToWatch(intelligence),
-    findings: criticalFailures.map((f) => ({ label: findingLabel(f), note: (f && f.note) || null })),
+    watch: sectionWatch(intelligence),
+    patterns: displayPatterns(intelligence, sections),
+    findings: criticalFailures.map(presentFinding),
     methodology: methodologyNotes(auditType, {
       sectionCount: sections.length,
       naSplit: Boolean(naSplit(totals, intelligence)),

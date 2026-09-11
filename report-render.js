@@ -9,8 +9,11 @@
 // a cover, then numbered sections, then a closing identification. Sections are
 // numbered as they are rendered, so an audit with nothing to say in one of them
 // simply has one fewer, never an empty heading.
-
-import { PATTERN_TYPE_LABEL } from './report-result.js';
+//
+// Phase 7.1. The first real v2 report named the same two areas in five places
+// and printed missed standards as if they were compliments. Areas to Watch is
+// now a marker on the Section Performance rows, patterns are de-duplicated in
+// report-result.js, and a standard is only ever shown quoted and labelled as one.
 
 // Supabase-sourced text is rendered via innerHTML below, so it has to be
 // escaped here rather than trusted as markup.
@@ -79,12 +82,15 @@ function formatAuditedOn(value) {
 const SEVERITY_WORD = { high: 'High', moderate: 'Moderate', low: 'Low' };
 const severityKey = (s) => (Object.prototype.hasOwnProperty.call(SEVERITY_WORD, s) ? s : 'low');
 
-const plural = (n, one, many) => (n === 1 ? one : many);
-
-/** One published judgment: a title and the sentence explaining it. */
-function insight(tone, title, text) {
+/**
+ * One published judgment: an optional kicker, a title, and the sentence
+ * explaining it. The kicker carries the severity, so neither the frozen title
+ * nor its reason has to repeat it.
+ */
+function insight(tone, title, text, kicker = null) {
   return `
     <article class="report-insight report-insight-${tone}">
+      ${kicker ? `<p class="report-insight-kicker">${escapeHtml(kicker)}</p>` : ''}
       <h3 class="report-insight-title">${escapeHtml(title)}</h3>
       <p class="report-insight-text">${escapeHtml(text)}</p>
     </article>
@@ -190,7 +196,10 @@ function prioritiesSection(view) {
       <div class="rp-group">
         ${g.label ? `<p class="rp-group-label">${escapeHtml(g.label)}<span class="rp-count">${g.items.length}</span></p>` : ''}
         <div class="ri-list">
-          ${g.items.map((p) => insight(severityKey(p.severity), p.title, p.reason)).join('')}
+          ${g.items.map((p) => {
+            const key = severityKey(p.severity);
+            return insight(key, p.title, p.reason, `${SEVERITY_WORD[key]} priority`);
+          }).join('')}
         </div>
       </div>
     `).join('');
@@ -214,24 +223,32 @@ function prioritiesSection(view) {
 }
 
 function patternsBody(view) {
-  const intel = view.intelligence;
-  if (!intel || !intel.patterns.length) return '';
+  if (!view.patterns.length) return '';
   return `
-    ${lead('Where individual findings connect. A pattern describes where findings recur, not why they occur.')}
+    ${lead('Where findings connect across the stay. A pattern describes where findings recur, not why they occur.')}
     <div class="ri-list">
-      ${intel.patterns.map((p) => insight('pattern', PATTERN_TYPE_LABEL[p.type] || 'Pattern', p.explanation)).join('')}
+      ${view.patterns.map((p) => insight('pattern', p.title, p.text)).join('')}
     </div>
   `;
 }
 
 function sectionsBody(view) {
   if (!view.sections.length) return '';
+  const watchOf = (s) => view.watch.find((w) => (w.sectionId && w.sectionId === s.id) || w.label === s.label) || null;
+  const anyWatch = view.sections.some(watchOf);
   const rows = view.sections.map((s) => {
     const pct = (n) => (s.total ? (n / s.total) * 100 : 0);
     const summary = `${s.met} met, ${s.partial} partial, ${s.missed} missed, of ${s.total} items`;
+    const w = watchOf(s);
+    const key = w ? severityKey(w.severity) : null;
+    const marker = w ? `
+      <span class="report-section-watch report-section-watch-${key}">
+        <span class="rw-sev rw-sev-${key}" aria-hidden="true"></span>Watch<span class="sr-only">, ${SEVERITY_WORD[key].toLowerCase()} priority</span>
+      </span>
+    ` : '';
     return `
-      <div class="report-section-row">
-        <span class="report-section-name">${escapeHtml(s.label)}</span>
+      <div class="report-section-row${w ? ' report-section-row-watch' : ''}">
+        <span class="report-section-name">${escapeHtml(s.label)}${marker}</span>
         <span class="report-section-bar" role="img" aria-label="${escapeHtml(summary)}">
           <span class="rsb-met" style="width:${pct(s.met)}%"></span>
           <span class="rsb-partial" style="width:${pct(s.partial)}%"></span>
@@ -241,8 +258,11 @@ function sectionsBody(view) {
       </div>
     `;
   }).join('');
+  const leadText = anyWatch
+    ? 'Each area assessed, in the order of the guest journey. The figure is items met out of items recorded. Areas marked Watch are where findings concentrated.'
+    : 'Each area assessed, in the order of the guest journey. The figure is items met out of items recorded.';
   return `
-    ${lead('Each area assessed, in the order of the guest journey. The figure is items met out of items recorded.')}
+    ${lead(leadText)}
     <ul class="rl-legend" aria-hidden="true">
       <li><span class="rl-swatch rsb-met"></span>Met</li>
       <li><span class="rl-swatch rsb-partial"></span>Partial</li>
@@ -258,32 +278,14 @@ function findingsBody(view) {
     return '<p class="rs-empty">No critical findings recorded during this audit.</p>';
   }
   return `
-    ${lead('Items the auditor recorded as critical during the stay.')}
+    ${lead('Recorded by the auditor as critical during the stay, each shown against the standard it concerns.')}
     ${view.findings.map((f) => `
       <div class="report-failure">
-        <p class="report-failure-label">${escapeHtml(f.label)}</p>
+        <p class="report-failure-kicker">Critical finding</p>
+        <p class="report-failure-label">${f.standard ? `Standard: ${escapeHtml(f.standard)}` : 'The standard concerned was not named in this record.'}</p>
         ${f.note ? `<p class="report-failure-note">${escapeHtml(f.note)}</p>` : ''}
       </div>
     `).join('')}
-  `;
-}
-
-function watchBody(view) {
-  if (!view.watch.length) return '';
-  return `
-    ${lead('Where findings concentrated during the stay, the most significant area first.')}
-    <ul class="rw">
-      ${view.watch.map((w) => {
-        const key = severityKey(w.severity);
-        const count = w.findingCount ? ` · ${w.findingCount} ${plural(w.findingCount, 'finding', 'findings')}` : '';
-        return `
-          <li class="rw-row">
-            <span class="rw-label"><span class="rw-sev rw-sev-${key}" aria-hidden="true"></span>${escapeHtml(w.label)}</span>
-            <span class="rw-meta">${SEVERITY_WORD[key]} priority${escapeHtml(count)}</span>
-          </li>
-        `;
-      }).join('')}
-    </ul>
   `;
 }
 
@@ -331,7 +333,6 @@ export function renderReport(root, view) {
     ['patterns', 'Operational Patterns', patternsBody(view)],
     ['sections', 'Section Performance', sectionsBody(view)],
     ['findings', 'Key Findings', findingsBody(view)],
-    ['watch', 'Areas to Watch', watchBody(view)],
     ['methodology', 'Methodology and Scope', methodologyBody(view)],
   ].filter(([, title, body]) => title && body.trim());
 

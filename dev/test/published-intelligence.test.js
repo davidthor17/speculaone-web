@@ -67,12 +67,12 @@ const items = (rows) => rows.map(([item_id, section_id, status]) => ({ item_id, 
  * of the two is wrong and this suite should be what says so.
  */
 const INTEL = () => ({
-  headline: 'Mixed overall performance, with 2 high priority issues to address.',
+  headline: 'Mixed overall performance, with one high-priority issue requiring resolution.',
   summary: {
     overallPerformance: 'Mixed',
-    primaryConcern: 'High priority: No hair, stains, or odors',
+    primaryConcern: 'Standard not met: “No hair, stains, or odors”',
     operationalPattern: '3 related failures recorded within Room Quality.',
-    positiveSignal: 'Consistently strong performance in Pre-Arrival & Website',
+    positiveSignal: 'Pre-Arrival & Website',
   },
   keyMetrics: {
     urgentIssueCount: 2,
@@ -86,8 +86,8 @@ const INTEL = () => ({
     {
       rank: 1,
       severity: 'high',
-      title: 'High priority: No hair, stains, or odors',
-      reason: 'Recorded in Room Quality as Missed. Ranked high priority.',
+      title: 'Standard not met: “No hair, stains, or odors”',
+      reason: 'Room Quality. A serious shortfall against the standard.',
       findingCount: 1,
       sectionIds: ['room'],
       affectedSections: ['Room Quality'],
@@ -95,8 +95,8 @@ const INTEL = () => ({
     {
       rank: 2,
       severity: 'moderate',
-      title: 'Moderate priority: All lights and technology functioning',
-      reason: 'Recorded in Room Quality as Missed. Ranked moderate priority.',
+      title: 'Standard not met: “Noise levels acceptable”',
+      reason: 'Room Quality. A significant shortfall against the standard.',
       findingCount: 1,
       sectionIds: ['room'],
       affectedSections: ['Room Quality'],
@@ -114,15 +114,15 @@ const INTEL = () => ({
     {
       type: 'cross_area',
       severity: 'high',
-      explanation: 'Condition-related findings appear across 3 areas of the stay.',
+      explanation: 'Findings about the physical condition of the property were recorded in Arrival & Entrance, Room Quality and Safety, Security & Integrity.',
       sectionIds: ['arrival', 'room', 'safety'],
     },
   ],
   strengths: [
     {
       sectionId: 'pre',
-      title: 'Consistently strong performance in Pre-Arrival & Website',
-      reason: '4 of 4 assessed items met the standard in Pre-Arrival & Website, with no missed or partial items.',
+      title: 'Pre-Arrival & Website',
+      reason: 'All 4 standards assessed here were met.',
       assessedCount: 4,
     },
   ],

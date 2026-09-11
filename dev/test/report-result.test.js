@@ -425,13 +425,13 @@ test('performanceBand: the four bands, and null for nothing scored', () => {
 
 test('buildHeadline: a critical failure always outranks the score', () => {
   const headline = buildHeadline({ percent: 96, standardMet: false, criticalFailureCount: 1, isDesk: false });
-  assert.match(headline, /Strong overall performance, with 1 critical finding requiring attention\./);
+  assert.match(headline, /Strong overall performance, with one critical finding requiring attention\./);
   assert.doesNotMatch(headline, /consistently strong/i);
 });
 
 test('buildHeadline: pluralises more than one critical finding', () => {
   const headline = buildHeadline({ percent: 80, standardMet: false, criticalFailureCount: 3, isDesk: false });
-  assert.match(headline, /3 critical findings requiring attention\./);
+  assert.match(headline, /three critical findings requiring attention\./);
 });
 
 test('buildHeadline: a clean, strong, standard-meeting audit gets the warmest honest line', () => {
@@ -470,8 +470,8 @@ test('buildHeadline: below 50% reads as a sentence, never "Requires attention ov
     [{ percent: 49, standardMet: false, criticalFailureCount: 0, isDesk: false }, 'Overall performance requires attention.'],
     [{ percent: 12, standardMet: false, criticalFailureCount: 0, isDesk: false }, 'Overall performance requires attention.'],
     [{ percent: 30, standardMet: false, criticalFailureCount: 0, isDesk: true }, 'Overall performance requires attention.'],
-    [{ percent: 40, standardMet: false, criticalFailureCount: 1, isDesk: false }, 'Overall performance requires attention, with 1 critical finding recorded.'],
-    [{ percent: 40, standardMet: false, criticalFailureCount: 2, isDesk: false }, 'Overall performance requires attention, with 2 critical findings recorded.'],
+    [{ percent: 40, standardMet: false, criticalFailureCount: 1, isDesk: false }, 'Overall performance requires attention, with one critical finding recorded.'],
+    [{ percent: 40, standardMet: false, criticalFailureCount: 2, isDesk: false }, 'Overall performance requires attention, with two critical findings recorded.'],
   ];
   for (const [input, expected] of cases) {
     const headline = buildHeadline(input);
@@ -482,19 +482,24 @@ test('buildHeadline: below 50% reads as a sentence, never "Requires attention ov
   }
 });
 
-test('buildHeadline: the fix changes no headline at or above 50%', () => {
-  // Every published report above the lowest band must read exactly as before.
+test('buildHeadline: the two live reports read as Phase 7.1 intends, and no other band moves', () => {
+  // A deliberate change to two live headlines, both derived at read time from
+  // frozen facts rather than stored: 8B10's count is now written as a word, and
+  // D699's "Good overall performance." now says what its status line already
+  // says, that the standard was not met. Mixed and below are unchanged.
   assert.equal(buildHeadline({ percent: 50, standardMet: false, criticalFailureCount: 0 }), 'Mixed overall performance.');
   assert.equal(
     buildHeadline({ percent: 58, standardMet: false, criticalFailureCount: 2 }),
-    'Mixed overall performance, with 2 critical findings requiring attention.',
-    'the headline AHP-2026-8B10 shows today',
+    'Mixed overall performance, with two critical findings requiring attention.',
+    'AHP-2026-8B10',
   );
   assert.equal(
     buildHeadline({ percent: 81, standardMet: false, criticalFailureCount: 0 }),
-    'Good overall performance.',
-    'the headline AHP-2026-D699 shows today',
+    'Good overall performance but below the Specula standard.',
+    'AHP-2026-D699',
   );
+  assert.equal(buildHeadline({ percent: 86, standardMet: true, criticalFailureCount: 0 }), 'Good overall performance, meeting the Specula standard.');
+  assert.equal(buildHeadline({ percent: 92, standardMet: false, criticalFailureCount: 0, isDesk: true }), 'Strong overall performance.', 'a Desk Review is never described against a standard');
 });
 
 test('buildHeadline: the below-50% sentence reaches every report path', () => {
