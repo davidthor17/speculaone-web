@@ -378,15 +378,26 @@ const BAND_LABEL = {
 export function buildHeadline({ percent, standardMet, criticalFailureCount = 0, isDesk = false }) {
   const band = performanceBand(percent);
   if (band === null) return 'This assessment has not yet been scored.';
-  const label = BAND_LABEL[band];
+  // The lowest band is a verb phrase, not an adjective, so it cannot sit in the
+  // "<Band> overall performance" frame the other three share: that produced
+  // "Requires attention overall performance." Every other band reads exactly
+  // as it always has, so no report above 50% changes by a character.
+  const lead = band === 'attention'
+    ? 'Overall performance requires attention'
+    : `${BAND_LABEL[band]} overall performance`;
   if (criticalFailureCount > 0) {
     const n = criticalFailureCount;
-    return `${label} overall performance, with ${n} critical finding${n === 1 ? '' : 's'} requiring attention.`;
+    const findings = `${n} critical finding${n === 1 ? '' : 's'}`;
+    // "requires attention, with ... requiring attention" says the same thing
+    // twice in one sentence.
+    return band === 'attention'
+      ? `${lead}, with ${findings} recorded.`
+      : `${lead}, with ${findings} requiring attention.`;
   }
-  if (isDesk) return `${label} overall performance.`;
+  if (isDesk) return `${lead}.`;
   if (band === 'strong' && standardMet) return 'A consistently strong guest experience across this stay.';
-  if (standardMet) return `${label} overall performance, meeting the Specula standard.`;
-  return `${label} overall performance.`;
+  if (standardMet) return `${lead}, meeting the Specula standard.`;
+  return `${lead}.`;
 }
 
 /** Assessed items and their outcomes, summed across every published section. */

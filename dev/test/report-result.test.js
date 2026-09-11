@@ -461,6 +461,67 @@ test('buildHeadline: an unscored audit says so, not "Requires attention"', () =>
   );
 });
 
+// Regression. Below 50% the band label is a verb phrase, and dropping it into
+// the "<Band> overall performance" frame produced "Requires attention overall
+// performance." on the public page.
+
+test('buildHeadline: below 50% reads as a sentence, never "Requires attention overall performance"', () => {
+  const cases = [
+    [{ percent: 49, standardMet: false, criticalFailureCount: 0, isDesk: false }, 'Overall performance requires attention.'],
+    [{ percent: 12, standardMet: false, criticalFailureCount: 0, isDesk: false }, 'Overall performance requires attention.'],
+    [{ percent: 30, standardMet: false, criticalFailureCount: 0, isDesk: true }, 'Overall performance requires attention.'],
+    [{ percent: 40, standardMet: false, criticalFailureCount: 1, isDesk: false }, 'Overall performance requires attention, with 1 critical finding recorded.'],
+    [{ percent: 40, standardMet: false, criticalFailureCount: 2, isDesk: false }, 'Overall performance requires attention, with 2 critical findings recorded.'],
+  ];
+  for (const [input, expected] of cases) {
+    const headline = buildHeadline(input);
+    assert.equal(headline, expected);
+    assert.doesNotMatch(headline, /Requires attention overall/i);
+    assert.equal((headline.match(/attention/g) || []).length, 1, `"${headline}" says attention twice`);
+    assert.equal(/—|--/.test(headline), false);
+  }
+});
+
+test('buildHeadline: the fix changes no headline at or above 50%', () => {
+  // Every published report above the lowest band must read exactly as before.
+  assert.equal(buildHeadline({ percent: 50, standardMet: false, criticalFailureCount: 0 }), 'Mixed overall performance.');
+  assert.equal(
+    buildHeadline({ percent: 58, standardMet: false, criticalFailureCount: 2 }),
+    'Mixed overall performance, with 2 critical findings requiring attention.',
+    'the headline AHP-2026-8B10 shows today',
+  );
+  assert.equal(
+    buildHeadline({ percent: 81, standardMet: false, criticalFailureCount: 0 }),
+    'Good overall performance.',
+    'the headline AHP-2026-D699 shows today',
+  );
+});
+
+test('buildHeadline: the below-50% sentence reaches every report path', () => {
+  const low = { percent: 40, itemsMet: 4, itemsGraded: 10 };
+  const sections = [{ id: 'room', label: 'Room Quality', total: 10, met: 4, partial: 0, missed: 6, na: 0 }];
+  const v1 = interpretReport(auditRow({
+    published_result: payload({ score: low, standardMet: false, sections }),
+  }));
+  assert.equal(v1.view.headline, 'Overall performance requires attention.', 'version 1 payload');
+
+  const legacy = interpretReport(
+    auditRow({ published_result: null }),
+    items([
+      ['RM-01', 'room', 'met'], ['RM-02', 'room', 'missed'],
+      ['RM-03', 'room', 'missed'], ['RM-04', 'room', 'missed'],
+    ]),
+  );
+  assert.equal(legacy.mode, 'legacy');
+  assert.equal(legacy.view.headline, 'Overall performance requires attention.', 'legacy recompute path');
+
+  // Version 2 without a block falls back to the headline derived here.
+  const v2bare = interpretReport(auditRow({
+    published_result: payload({ formatVersion: 2, score: low, standardMet: false, sections }),
+  }));
+  assert.equal(v2bare.view.headline, 'Overall performance requires attention.', 'version 2, no block');
+});
+
 test('performanceTotals: summed across every published section, nothing recomputed', () => {
   const totals = performanceTotals([
     section({ total: 10, met: 8, partial: 1, missed: 1, na: 0 }),
